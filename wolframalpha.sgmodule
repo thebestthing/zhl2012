@@ -7,4 +7,4 @@ hostname = %APPEND% www.wolframalpha.com,api.wolframalpha.com
 
 [Script]
 
-wolframalpha = type=http-response, pattern=^https?:\/\/api\.wolframalpha\.com\/v2\/query, script-path=https://raw.githubusercontent.com/thebestthing/zhl2012/main/wolframalpha.js, requires-body=true, max-size=-1, timeout=60
+wolframalpha = type=http-response, pattern=^https?:\/\/api\.wolframalpha\.com\/v2\/query?appid=DEMO&input=2%2B2&output=json, script-path=https://raw.githubusercontent.com/thebestthing/zhl2012/main/wolframalpha.js, requires-body=true, max-size=-1, timeout=60
