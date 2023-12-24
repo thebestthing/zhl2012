@@ -3,7 +3,7 @@
 
 [Script]
 
-wolframalpha = type=http-response, pattern=^https:\/\/www\.wolframalpha\.com\/users\/me\/account\/?appid=*, script-path=https://raw.githubusercontent.com/thebestthing/zhl2012/main/wolframalpha.js, requires-body=true, max-size=-1, timeout=60
+wolframalpha = type=http-response, pattern=^https:\/\/www\.wolframalpha\.com\/users\/me\/account\?appid=*, script-path=https://raw.githubusercontent.com/thebestthing/zhl2012/main/wolframalpha.js, requires-body=true, max-size=-1, timeout=60
 
 [MITM]
 
