@@ -1,0 +1,8 @@
+#!name=wolfram alpha
+#!desc=wolfram alpha
+
+[Script]
+wolframalpha = type=http-request,pattern=^https?:\/\/api\.wolframalpha\.com\/v2\/query,script-path=https://raw.githubusercontent.com/thebestthing/zhl2012/main/wolframalpha.js,requires-body=true
+
+[MITM]
+hostname = api.wolframalpha.com
