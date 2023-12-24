@@ -3,8 +3,8 @@
 
 [MITM]
 
-hostname = %APPEND% www.wolframalpha.com
+hostname = %APPEND% www.wolframalpha.com,api.wolframalpha.com
 
 [Script]
 
-wolframalpha = type=http-response, pattern=^https:\/\/www\.wolframalpha\.com\/users\/me\/account\?appid=*, script-path=http://script.hub/convert/_start_/https://raw.githubusercontent.com/thebestthing/zhl2012/main/wolframalpha.js/_end_/wolframalpha.js?jsc2=.&n=wolfram%20alpha&type=qx-script&target=surge-script&del=true, requires-body=true, max-size=-1, timeout=60
+wolframalpha = type=http-response, pattern=^https?:\/\/api\.wolframalpha\.com\/v2\/query, script-path=https://raw.githubusercontent.com/thebestthing/zhl2012/main/wolframalpha.js, requires-body=true, max-size=-1, timeout=60
