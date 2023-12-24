@@ -1,3 +1,20 @@
+/*************************************
+
+项目名称：wolfram alpha
+更新日期：2023-12-24
+脚本作者：@zhlpp
+使用声明：⚠️仅供参考，🈲转载与售卖！
+
+**************************************
+
+[rewrite_local]
+^https:\/\/www\.wolframalpha\.com\/users\/me\/account\?appid=* url script-response-body https://raw.githubusercontent.com/thebestthing/zhl2012/main/wolframalpha.js 
+
+[mitm]
+hostname = www.wolframalpha.com
+
+*************************************/
+
 var obj = JSON.parse($response.body); 
 obj= {
  "account": {
