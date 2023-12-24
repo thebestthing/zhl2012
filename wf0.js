@@ -8,7 +8,7 @@
 **************************************
 
 [rewrite_local]
-^https:\/\/www\.wolframalpha\.com\/users\/me\/account* url script-response-body https://raw.githubusercontent.com/chankanzu/Quan-X-1.3/master/Wolfram1.js ^https:\/\/account\.wolfram\.com\/auth\/introspect$ url script-response-body https://raw.githubusercontent.com/chankanzu/Quan-X-1.3/master/Wolfram.js
+^https:\/\/www\.wolframalpha\.com\/users\/me\/account* url script-response-body https://raw.githubusercontent.com/chankanzu/Quan-X-1.3/master/Wolfram1.js
 
 [mitm]
 hostname = www.wolframalpha.com
