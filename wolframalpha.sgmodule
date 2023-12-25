@@ -3,7 +3,7 @@
 
 [MITM]
 
-hostname = %APPEND% api.wolframalpha.com
+hostname = %APPEND% api.wolframalpha.com, products.wolframalpha.com
 
 [Script]
 
