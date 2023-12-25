@@ -7,8 +7,4 @@ hostname = %APPEND% www.wolframalpha.com
 
 [Script]
 
-wolframalpha1 = type=http-response, pattern=^https:\/\/www\.wolframalpha\.com\/users\/me\/account*, script-path= https://raw.githubusercontent.com/chankanzu/Quan-X-1.3/master/Wolfram1.js, requires-body=true, max-size=-1, timeout=60
-
-wolframalpha2 = type=http-response, pattern=^https:\/\/account\.wolfram\.com\/auth\/introspect$, script-path= https://raw.githubusercontent.com/chankanzu/Quan-X-1.3/master/Wolfram.js, requires-body=true, max-size=-1, timeout=60
-
-wolframalpha3 = type=http-response, pattern=^https: \/\/www.wolframalpha\.com\/users\/me\/account\?appid=*, script-path= https://raw.githubusercontent.com/thebestthing/zhl2012/main/wolframalpha.js, max-size=-1, timeout=60
+wolframalpha3 = type=http-response, pattern=^https: \/\/www.wolframalpha\.com\/users\/me\/account\?appid=*, script-path= https://raw.githubusercontent.com/thebestthing/zhl2012/main/wf1.js, max-size=-1, timeout=60
