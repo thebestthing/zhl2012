@@ -16,8 +16,7 @@ hostname = www.wolframalpha.com
 *************************************/
 
 
-let body = $response.body;
-let obj = JSON.parse(body);
+var obj = JSON.parse($response.body);
 obj = {
     "account": {
         "info": {
@@ -253,5 +252,4 @@ obj = {
     "error": null,
     "profilingSet": null
 };
-body = JSON.stringify(obj);
-$done(body);
+$done({ body: JSON.stringify(obj) });
