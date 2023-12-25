@@ -16,7 +16,8 @@ hostname = www.wolframalpha.com
 *************************************/
 
 
-var obj = JSON.parse($response.body);
+var body = $response.body;
+var obj = JSON.parse(body);
 
 obj.account.info.name = "Cracked";
 obj.account.info.email = "Cracked by xxx";
@@ -28,8 +29,8 @@ obj.account.status.proLevel = 3;
 obj.account.permissions.features.practiceSheets.value = true;
 obj.account.permissions.features.embeddablePods.value = true;
 obj.account.permissions.features.webApps.value = "";
-obj.account.permissions.features.fileUpload.value = 2048; // 设置为允许上传照片，单位为 MB，可以根据需要修改
-obj.account.permissions.features.imageInput.value = 2048; // 设置为允许上传照片，单位为 MB，可以根据需要修改
+obj.account.permissions.features.fileUpload.value = 2048; // 提高上传速度，单位为 MB
+obj.account.permissions.features.imageInput.value = 2048; // 提高上传速度，单位为 MB
 obj.account.permissions.features.showSteps.value = true;
 obj.account.permissions.features.specialCharacterKeyboards.value = true;
 obj.account.permissions.features.pdfDownload.value = true;
@@ -39,7 +40,7 @@ obj.account.permissions.features.dataInput.value = true;
 obj.account.permissions.features.cdfInteractivePods.value = true;
 obj.account.permissions.features.customizeGraphicsPods.value = true;
 obj.account.permissions.features.storeDownloadedData.value = true;
-obj.account.permissions.features.longerTimeouts.value = 0;
+obj.account.permissions.features.longerTimeouts.value = 60; // 增加照片上传请求的超时时间为60秒
 obj.account.permissions.features.zoomSubpods.value = true;
 obj.account.permissions.features.downloadPodData.value = true;
 obj.account.permissions.features.removeAds.value = true;
@@ -100,7 +101,7 @@ obj.account.preferences.homepageHistory = false;
 obj.account.preferences.homepageFavorites = false;
 obj.account.preferences.homepageData = false;
 obj.account.preferences.homepageShortcuts = false;
-
 obj.account.links.facebook = null;
 
-$done({ body: JSON.stringify(obj) });
+body = JSON.stringify(obj);
+$done(body);
