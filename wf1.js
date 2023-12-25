@@ -16,8 +16,7 @@ hostname = www.wolframalpha.com
 *************************************/
 
 
-var body = $response.body;
-var obj = JSON.parse(body);
+var obj = JSON.parse($response.body);
 
 obj.account.info.name = "Cracked";
 obj.account.info.email = "Cracked by xxx";
@@ -103,5 +102,4 @@ obj.account.preferences.homepageData = false;
 obj.account.preferences.homepageShortcuts = false;
 obj.account.links.facebook = null;
 
-body = JSON.stringify(obj);
-$done(body);
+$done({ body: JSON.stringify(obj) });
