@@ -16,17 +16,14 @@ hostname = www.wolframalpha.com
 *************************************/
 
 
-var obj = JSON.parse($response.body);
+var body = $response.body;
+var obj = JSON.parse(body);
 
 // 修改账户信息
-obj.account.info.hasError = false;
-obj.account.info.error = null;
 obj.account.info.name = "Cracked";
 obj.account.info.email = "Cracked by xxx";
 
 // 修改账户状态
-obj.account.status.hasError = false;
-obj.account.status.error = null;
 obj.account.status.signedIn = true;
 obj.account.status.pro = true;
 obj.account.status.proForStudents = true;
@@ -34,18 +31,12 @@ obj.account.status.proForEducators = true;
 obj.account.status.proLevel = 3;
 
 // 修改其他权限和订阅信息等
-obj.account.permissions.hasError = false;
-obj.account.permissions.error = null;
-obj.account.permissions.features.fileUpload.value = true; // 举例，根据实际情况修改其他属性
+obj.account.permissions.features.fileUpload.value = true;
 
-obj.account.subscriptions.hasError = false;
-obj.account.subscriptions.error = null;
 obj.account.subscriptions.hasSubscriptions = true;
-obj.account.subscriptions.primarySubscription.nextBillingDate = "2099-12-31"; // 举例，根据实际情况修改其他属性
+obj.account.subscriptions.primarySubscription.nextBillingDate = "2099-12-31";
 
 // 修改偏好设置等
-obj.account.preferences.hasError = false;
-obj.account.preferences.error = null;
 obj.account.preferences.id = 8058195;
 obj.account.preferences.userId = 9782356;
 obj.account.preferences.createdDate = 1596536830000;
@@ -84,10 +75,4 @@ obj.hasError = false;
 obj.error = null;
 obj.profilingSet = null;
 
-// 设置请求超时时间
-$done({
-  body: JSON.stringify(obj),
-  headers: { "Connection": "keep-alive" },
-  status: 200,
-  timeout: 600
-});
+$done({ body: JSON.stringify(obj) });
