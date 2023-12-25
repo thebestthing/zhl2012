@@ -18,88 +18,240 @@ hostname = www.wolframalpha.com
 
 var obj = JSON.parse($response.body);
 
-obj.account.info.name = "Cracked";
-obj.account.info.email = "Cracked by xxx";
-obj.account.status.signedIn = true;
-obj.account.status.pro = true;
-obj.account.status.proForStudents = true;
-obj.account.status.proForEducators = true;
-obj.account.status.proLevel = 3;
-obj.account.permissions.features.practiceSheets.value = true;
-obj.account.permissions.features.embeddablePods.value = true;
-obj.account.permissions.features.webApps.value = "";
-obj.account.permissions.features.fileUpload.value = 2048; // 提高上传速度，单位为 MB
-obj.account.permissions.features.imageInput.value = 2048; // 提高上传速度，单位为 MB
-obj.account.permissions.features.showSteps.value = true;
-obj.account.permissions.features.specialCharacterKeyboards.value = true;
-obj.account.permissions.features.pdfDownload.value = true;
-obj.account.permissions.features.copyablePlaintext.value = true;
-obj.account.permissions.features.cdfDownload.value = true;
-obj.account.permissions.features.dataInput.value = true;
-obj.account.permissions.features.cdfInteractivePods.value = true;
-obj.account.permissions.features.customizeGraphicsPods.value = true;
-obj.account.permissions.features.storeDownloadedData.value = true;
-obj.account.permissions.features.longerTimeouts.value = 60; // 增加照片上传请求的超时时间为60秒
-obj.account.permissions.features.zoomSubpods.value = true;
-obj.account.permissions.features.downloadPodData.value = true;
-obj.account.permissions.features.removeAds.value = true;
-obj.account.permissions.features.emailProductSupport.value = true;
-obj.account.permissions.features.saveSubpodAsImage.value = true;
-
-obj.account.subscriptions.hasSubscriptions = true;
-obj.account.subscriptions.primarySubscription.subscriptionId = 4486323;
-obj.account.subscriptions.primarySubscription.userId = 9782356;
-obj.account.subscriptions.primarySubscription.planId = 1106;
-obj.account.subscriptions.primarySubscription.startDate = "2020-08-04";
-obj.account.subscriptions.primarySubscription.nextBillingDate = "2099-12-31";
-obj.account.subscriptions.primarySubscription.finalAccessDate = "2099-12-31";
-obj.account.subscriptions.primarySubscription.status = "ACTIVE";
-obj.account.subscriptions.primarySubscription.paymentType = "NONE";
-obj.account.subscriptions.primarySubscription.monthStart = "2020-08-04";
-obj.account.subscriptions.primarySubscription.monthEnd = "2099-12-31";
-obj.account.subscriptions.primarySubscription.nda = false;
-obj.account.subscriptions.primarySubscription.userUuid = "ce6341b4-5c9c-45b9-7584-7542ff503b1c";
-obj.account.subscriptions.primarySubscription.plan.planId = 1109;
-obj.account.subscriptions.primarySubscription.plan.name = "Pro";
-obj.account.subscriptions.primarySubscription.plan.description = "Wolfram Alpha Professional Subscription";
-obj.account.subscriptions.primarySubscription.plan.billingPeriod = "NONE";
-obj.account.subscriptions.primarySubscription.plan.planType = "PRO";
-obj.account.subscriptions.primarySubscription.plan.productId = 12;
-obj.account.subscriptions.primarySubscription.plan.canUpgrade = false;
-obj.account.subscriptions.primarySubscription.plan.product.productId = 12;
-obj.account.subscriptions.primarySubscription.plan.product.name = "Wolfram|Alpha";
-obj.account.subscriptions.primarySubscription.plan.product.type = "SUBSCRIPTION";
-obj.account.subscriptions.primarySubscription.plan.product.prettyName = "wa";
-obj.account.subscriptions.primarySubscription.plan.product.productReady = false;
-obj.account.subscriptions.primarySubscription.plan.product.contactUsUrl = "https://www.wolframalpha.com/contact.html";
-obj.account.subscriptions.primarySubscription.plan.product.productUrl = "https://www.wolframalpha.com/";
-obj.account.subscriptions.primarySubscription.plan.product.productHost = "www.wolframalpha.com";
-obj.account.subscriptions.primarySubscription.plan.product.productPricingUrl = "https://www.wolframalpha.com/pro";
-obj.account.subscriptions.primarySubscription.plan.product.productReleased = false;
-obj.account.subscriptions.primarySubscription.plan.product.learnAboutUrl = "https://products.wolframalpha.com/";
-
-obj.account.preferences.location = "Automatic";
-obj.account.preferences.country = "Automatic";
-obj.account.preferences.timezone = "Automatic";
-obj.account.preferences.currency = "Automatic";
-obj.account.preferences.dateFormat = "Automatic";
-obj.account.preferences.unitFormat = 0;
-obj.account.preferences.queryHistory = false;
-obj.account.preferences.querySuggestion = false;
-obj.account.preferences.keyboard = 0;
-obj.account.preferences.dataFormat = "Excel 97-2004";
-obj.account.preferences.imageFormat2d = "gif";
-obj.account.preferences.imageFormat3d = "format 1";
-obj.account.preferences.soundFormat = "mp3";
-obj.account.preferences.resultsWidth = 4;
-obj.account.preferences.fontSize = 0;
-obj.account.preferences.contrast = 0;
-obj.account.preferences.homepageBackground = "blue-circles";
-obj.account.preferences.homepageHints = 0;
-obj.account.preferences.homepageHistory = false;
-obj.account.preferences.homepageFavorites = false;
-obj.account.preferences.homepageData = false;
-obj.account.preferences.homepageShortcuts = false;
-obj.account.links.facebook = null;
+obj = {
+  "account": {
+    "info": {
+      "hasError": false,
+      "error": null,
+      "name": "Cracked",
+      "email": "Cracked by xxx"
+    },
+    "status": {
+      "hasError": false,
+      "error": null,
+      "signedIn": true,
+      "pro": true,
+      "proForStudents": true,
+      "proForEducators": true,
+      "proLevel": 3
+    },
+    "persona": {
+      "classification": "Student",
+      "source": null,
+      "resourceId": {
+        "userId": 9782356,
+        "productId": 9
+      }
+    },
+    "permissions": {
+      "hasError": false,
+      "error": null,
+      "features": {
+        "practiceSheets": {
+          "units": null,
+          "value": true
+        },
+        "embeddablePods": {
+          "units": null,
+          "value": true
+        },
+        "webApps": {
+          "units": null,
+          "value": ""
+        },
+        "fileUpload": {
+          "units": "MB",
+          "value": 0
+        },
+        "imageInput": {
+          "units": "MB",
+          "value": 0
+        },
+        "showSteps": {
+          "units": null,
+          "value": true
+        },
+        "specialCharacterKeyboards": {
+          "units": null,
+          "value": true
+        },
+        "pdfDownload": {
+          "units": null,
+          "value": true
+        },
+        "copyablePlaintext": {
+          "units": null,
+          "value": true
+        },
+        "cdfDownload": {
+          "units": null,
+          "value": true
+        },
+        "dataInput": {
+          "units": null,
+          "value": true
+        },
+        "cdfInteractivePods": {
+          "units": null,
+          "value": true
+        },
+        "customizeGraphicsPods": {
+          "units": null,
+          "value": true
+        },
+        "storeDownloadedData": {
+          "units": null,
+          "value": true
+        },
+        "longerTimeouts": {
+          "units": "seconds",
+          "value": 0
+        },
+        "zoomSubpods": {
+          "units": null,
+          "value": true
+        },
+        "downloadPodData": {
+          "units": null,
+          "value": true
+        },
+        "removeAds": {
+          "units": null,
+          "value": true
+        },
+        "emailProductSupport": {
+          "units": null,
+          "value": true
+        },
+        "saveSubpodAsImage": {
+          "units": null,
+          "value": true
+        }
+      }
+    },
+    "subscriptions": {
+      "hasError": false,
+      "error": null,
+      "hasSubscriptions": true,
+      "primarySubscription": {
+        "subscriptionId": 4486323,
+        "userId": 9782356,
+        "planId": 1106,
+        "startDate": "2020-08-04",
+        "nextBillingDate": "2099-12-31",
+        "finalAccessDate": "2099-12-31",
+        "status": "ACTIVE",
+        "paymentType": "NONE",
+        "monthStart": "2020-08-04",
+        "monthEnd": "2099-12-31",
+        "nda": false,
+        "userUuid": "ce6341b4-5c9c-45b9-7584-7542ff503b1c",
+        "plan": {
+          "planId": 1109,
+          "name": "Professional",
+          "description": "Wolfram Alpha Professional Subscription",
+          "billingPeriod": "NONE",
+          "planType": "PRO",
+          "productId": 12,
+          "canUpgrade": false,
+          "product": {
+            "productId": 12,
+            "name": "Wolfram|Alpha",
+            "type": "SUBSCRIPTION",
+            "prettyName": "wa",
+            "productReady": false,
+            "contactUsUrl": "https://www.wolframalpha.com/contact.html",
+            "productUrl": "https://www.wolframalpha.com/",
+            "productHost": "www.wolframalpha.com",
+            "productPricingUrl": "https://www.wolframalpha.com/pro",
+            "productReleased": false,
+            "learnAboutUrl": "https://products.wolframalpha.com/"
+          }
+        }
+      },
+      "nextSubscription": null,
+      "nextPaidSubscription": null,
+      "allSubscriptions": [
+        {
+          "subscriptionId": 4486323,
+          "userId": 9782356,
+          "planId": 1106,
+          "startDate": "2020-08-04",
+          "nextBillingDate": "2099-12-31",
+          "finalAccessDate": "2099-12-31",
+          "status": "ACTIVE",
+          "paymentType": "NONE",
+          "monthStart": "2020-08-04",
+          "monthEnd": "2099-12-31",
+          "nda": false,
+          "userUuid": "ce6341b4-5c9c-45b9-7584-7542ff503b1c",
+          "plan": {
+            "planId": 1109,
+            "name": "Pro",
+            "description": "Wolfram Alpha Professional Subscription",
+            "billingPeriod": "NONE",
+            "planType": "PRO",
+            "productId": 12,
+            "canUpgrade": false,
+            "product": {
+              "productId": 12,
+              "name": "Wolfram|Alpha",
+              "type": "SUBSCRIPTION",
+              "prettyName": "wa",
+              "productReady": false,
+              "contactUsUrl": "https://www.wolframalpha.com/contact.html",
+              "productUrl": "https://www.wolframalpha.com/",
+              "productHost": "www.wolframalpha.com",
+              "productPricingUrl": "https://www.wolframalpha.com/pro",
+              "productReleased": false,
+              "learnAboutUrl": "https://products.wolframalpha.com/"
+            }
+          }
+        }
+      ],
+      "billingDetails": null
+    },
+    "preferences": {
+      "hasError": false,
+      "error": null,
+      "id": 8058195,
+      "userId": 9782356,
+      "createdDate": 1596536830000,
+      "updatedDate": 1596536830000,
+      "updatedBy": 0,
+      "location": "Automatic",
+      "country": "Automatic",
+      "timezone": "Automatic",
+      "currency": "Automatic",
+      "dateFormat": "Automatic",
+      "unitFormat": 0,
+      "queryHistory": false,
+      "querySuggestion": false,
+      "keyboard": 0,
+      "dataFormat": "Excel 97-2004",
+      "imageFormat2d": "gif",
+      "imageFormat3d": "format 1",
+      "soundFormat": "mp3",
+      "resultsWidth": 4,
+      "fontSize": 0,
+      "contrast": 0,
+      "homepageBackground": "blue-circles",
+      "homepageHints": 0,
+      "homepageHistory": false,
+      "homepageFavorites": false,
+      "homepageData": false,
+      "homepageShortcuts": false
+    },
+    "links": {
+      "facebook": null
+    },
+    "hasError": false,
+    "error": null,
+    "profilingSet": null
+  },
+  "hasError": false,
+  "error": null,
+  "profilingSet": null
+};
 
 $done({ body: JSON.stringify(obj) });
