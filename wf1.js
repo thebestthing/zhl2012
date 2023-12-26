@@ -66,7 +66,7 @@ obj = {
         },
         "imageInput": {
           "units": "MB",
-          "value": 0
+          "value": true
         },
         "showSteps": {
           "units": null,
