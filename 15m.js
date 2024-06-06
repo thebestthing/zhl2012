@@ -15,24 +15,22 @@ hostname = *.18m.jinyemimi.com
 *************************************/
 
 var body = $response.body;
-var url = $request.url;
 var obj = JSON.parse(body);
  
-const money = 'user/myinfo';
-if (url.indexOf(money) != -1) {
-    obj.data.id = 16036;
-    obj.data.username = 13727968870;
-    obj.data.nickname = "在我梦里破解";
-    obj.data.money = 99999;
-    obj.data.token = '7d2d05cf08b888acaafb7f3cec59fccc813e28f9';
-    obj.data.status = "normal";
-    obj.data.vip_sta = "0";
-    obj.data.dy_option = "";
-    obj.data.days = 0;
-    obj.data.end_time = 1717603200;
-    obj.data.text = "alipay";
-    obj.data.text_url = "https:\/\/shop.youneiku.com\/card\/routes\/shop.php?action=payindex&user_id=16036";
-    obj.data.avatar = "http:\/\/15m.xiexiebama.com\/user\/face\/20220412\/cb2476aacebd0bd86b7c4960f2b324bf.rosi";
-    body = JSON.stringify(obj);
-}
+obj = {
+    "id" : 16036,
+    "username": 13727968870,
+    "nickname": "在我梦里破解",
+    "money": 99999,
+    "token": '7d2d05cf08b888acaafb7f3cec59fccc813e28f9',
+    "status": "normal",
+    "vip_sta": "0",
+    "dy_option": "",
+    "days": 0,
+    "end_time": 1717603200,
+    "text": "alipay",
+    "text_url": "https:\/\/shop.youneiku.com\/card\/routes\/shop.php?action=payindex&user_id=16036",
+    "avatar": "http:\/\/15m.xiexiebama.com\/user\/face\/20220412\/cb2476aacebd0bd86b7c4960f2b324bf.rosi"
+};
+body = JSON.stringify(obj);
 $done({body});
