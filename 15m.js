@@ -18,19 +18,25 @@ var body = $response.body;
 var obj = JSON.parse(body);
  
 obj = {
-    "id" : 16036,
-    "username": 13727968870,
-    "nickname": "在我梦里破解",
-    "money": 99999,
-    "token": '7d2d05cf08b888acaafb7f3cec59fccc813e28f9',
-    "status": "normal",
-    "vip_sta": "0",
-    "dy_option": "",
-    "days": 0,
-    "end_time": 1717603200,
-    "text": "alipay",
-    "text_url": "https:\/\/shop.youneiku.com\/card\/routes\/shop.php?action=payindex&user_id=16036",
-    "avatar": "http:\/\/15m.xiexiebama.com\/user\/face\/20220412\/cb2476aacebd0bd86b7c4960f2b324bf.rosi"
+    "code": 1,
+    "msg": "",
+    "time": "1717684662",
+    "data": {
+        "id": 16036,
+        "username": "13727968870",
+        "nickname": "在我梦里",
+        "mobile": "13727968870",
+        "avatar": "http://15m.xiexiebama.com/user/face/20220412/cb2476aacebd0bd86b7c4960f2b324bf.rosi",
+        "money": 9999,
+        "status": "normal",
+        "vip_sta": "0",
+        "dy_option": "",
+        "days": 0,
+        "end_time": "1717603200",
+        "token": "7d2d05cf08b888acaafb7f3cec59fccc813e28f9",
+        "text": "alipay",
+        "text_url": "https://shop.youneiku.com/card/routes/shop.php?action=payindex&user_id=16036"
+    }
 };
 body = JSON.stringify(obj);
 $done({body});
