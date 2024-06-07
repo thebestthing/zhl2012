@@ -10,7 +10,7 @@
 ^http?:\/\/www\.18m\.jinyemimi\.com\/api\/api_data_2\/user\/myinfo url script-response-body https://raw.githubusercontent.com/thebestthing/zhl2012/main/15m.js
 
 [mitm]
-hostname = *.18m.jinyemimi.com
+hostname = 18m.jinyemimi.com
 
 *************************************/
 
@@ -20,7 +20,7 @@ var obj = JSON.parse(body);
 obj = {
     "code": 1,
     "msg": "",
-    "time": "1717684662",
+    "time": "1717888888",
     "data": {
         "id": 16036,
         "username": "13727968870",
@@ -32,7 +32,7 @@ obj = {
         "vip_sta": "0",
         "dy_option": "",
         "days": 0,
-        "end_time": "1717603200",
+        "end_time": 1717888888,
         "token": "7d2d05cf08b888acaafb7f3cec59fccc813e28f9",
         "text": "alipay",
         "text_url": "https://shop.youneiku.com/card/routes/shop.php?action=payindex&user_id=16036"
