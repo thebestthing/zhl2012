@@ -8,7 +8,7 @@
 **************************************
 
 [rewrite_local]
-^https:\/\/www\.wolframalpha\.com\/users\/me\/account\?appid=* url script-response-body https://raw.githubusercontent.com/thebestthing/zhl2012/main/wf1.js 
+^https:\/\/www\.wolframalpha\.com\/user\/me\/account\?appid=* url script-response-body https://raw.githubusercontent.com/thebestthing/zhl2012/main/wf1.js 
 
 [mitm]
 hostname = www.wolframalpha.com
