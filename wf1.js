@@ -1,4 +1,23 @@
+/*************************************
+
+项目名称：wolfram alpha
+更新日期：2023-12-24
+脚本作者：@zhlpp
+使用声明：⚠️仅供参考，🈲转载与售卖！
+
+**************************************
+
+[rewrite_local]
+^https:\/\/www\.wolframalpha\.com\/users\/me\/account\?appid=* url script-response-body https://raw.githubusercontent.com/thebestthing/zhl2012/main/wf1.js 
+
+[mitm]
+hostname = www.wolframalpha.com, *.wolframalpha.com, wolframalpha.com
+
+*************************************/
+
+
 var body = $response.body;
+console.log("原始响应: " + body); // 调试：输出原始响应
 var obj = JSON.parse(body);
 
 obj = {
@@ -6,23 +25,23 @@ obj = {
     "info": {
       "hasError": false,
       "error": null,
-      "name": "zhen hl", // 保留抓包中的真实姓名
-      "email": "zhlsnmsnb778@gmail.com" // 保留抓包中的真实邮箱
+      "name": "zhen hl",
+      "email": "zhlsnmsnb778@gmail.com"
     },
     "status": {
       "hasError": false,
       "error": null,
       "signedIn": true,
-      "pro": true, // 修改为专业版
-      "proForStudents": true, // 启用学生专业版
-      "proForEducators": true, // 启用教育者专业版
-      "proLevel": 3 // 设置为高级别
+      "pro": true,
+      "proForStudents": true,
+      "proForEducators": true,
+      "proLevel": 3
     },
     "persona": {
       "classification": "Student",
       "source": null,
       "resourceId": {
-        "userId": 11013109, // 使用抓包中的 userId
+        "userId": 11013109,
         "productId": 9
       }
     },
@@ -35,9 +54,9 @@ obj = {
         "webApps": { "units": null, "value": "" },
         "fileUpload": { "units": "MB", "value": 0 },
         "imageInput": { "units": "MB", "value": true },
-        "showSteps": { "units": null, "value": true }, // 启用显示步骤
+        "showSteps": { "units": null, "value": true },
         "specialCharacterKeyboards": { "units": null, "value": true },
-        "pdfDownload": { "units": null, "value": true }, // 启用 PDF 下载
+        "pdfDownload": { "units": null, "value": true },
         "copyablePlaintext": { "units": null, "value": true },
         "cdfDownload": { "units": null, "value": true },
         "dataInput": { "units": null, "value": true },
@@ -47,7 +66,7 @@ obj = {
         "longerTimeouts": { "units": "seconds", "value": 0 },
         "zoomSubpods": { "units": null, "value": true },
         "downloadPodData": { "units": null, "value": true },
-        "removeAds": { "units": null, "value": true }, // 移除广告
+        "removeAds": { "units": null, "value": true },
         "emailProductSupport": { "units": null, "value": true },
         "saveSubpodAsImage": { "units": null, "value": true }
       }
@@ -57,25 +76,25 @@ obj = {
       "error": null,
       "hasSubscriptions": true,
       "primarySubscription": {
-        "subscriptionId": 7530644, // 保留抓包中的 subscriptionId
-        "userId": 11013109, // 使用抓包中的 userId
-        "planId": 1109, // 修改为 Pro 计划
-        "startDate": "2022-12-07", // 保留抓包中的开始日期
-        "nextBillingDate": "2099-12-31", // 设置为未来日期
-        "finalAccessDate": "2099-12-31", // 设置为未来日期
+        "subscriptionId": 7530644,
+        "userId": 11013109,
+        "planId": 1109, // Pro 计划
+        "startDate": "2022-12-07",
+        "nextBillingDate": "2099-12-31",
+        "finalAccessDate": "2099-12-31",
         "status": "ACTIVE",
-        "paymentType": "CREDIT_CARD", // 保留抓包中的支付类型
+        "paymentType": "CREDIT_CARD",
         "monthStart": "2022-12-07",
         "monthEnd": "2099-12-31",
         "nda": false,
-        "userUuid": "fe6f4702-3355-432e-9f29-8e892dbe4d8e", // 保留抓包中的 UUID
+        "userUuid": "fe6f4702-3355-432e-9f29-8e892dbe4d8e",
         "plan": {
-          "planId": 1109, // 修改为 Pro 计划
-          "name": "Pro", // 修改为 Pro
+          "planId": 1109,
+          "name": "Pro",
           "description": "Wolfram Alpha Professional Subscription",
-          "billingPeriod": "NONE",
-          "planType": "PRO", // 修改为 Pro 类型
-          "productId": 9,
+          "billingPeriod": "YEARLY",
+          "planType": "PRO",
+          "productId": 9, // 保留抓包值，可能是通用的
           "canUpgrade": false,
           "product": {
             "productId": 9,
@@ -96,24 +115,24 @@ obj = {
       "nextPaidSubscription": null,
       "allSubscriptions": [
         {
-          "subscriptionId": 7530644, // 保留抓包中的 subscriptionId
-          "userId": 11013109, // 使用抓包中的 userId
-          "planId": 1109, // 修改为 Pro 计划
-          "startDate": "2022-12-07", // 保留抓包中的开始日期
-          "nextBillingDate": "2099-12-31", // 设置为未来日期
-          "finalAccessDate": "2099-12-31", // 设置为未来日期
+          "subscriptionId": 7530644,
+          "userId": 11013109,
+          "planId": 1109,
+          "startDate": "2022-12-07",
+          "nextBillingDate": "2099-12-31",
+          "finalAccessDate": "2099-12-31",
           "status": "ACTIVE",
-          "paymentType": "CREDIT_CARD", // 保留抓包中的支付类型
+          "paymentType": "CREDIT_CARD",
           "monthStart": "2022-12-07",
           "monthEnd": "2099-12-31",
           "nda": false,
-          "userUuid": "fe6f4702-3355-432e-9f29-8e892dbe4d8e", // 保留抓包中的 UUID
+          "userUuid": "fe6f4702-3355-432e-9f29-8e892dbe4d8e",
           "plan": {
-            "planId": 1109, // 修改为 Pro 计划
-            "name": "Pro", // 修改为 Pro
+            "planId": 1109,
+            "name": "Pro",
             "description": "Wolfram Alpha Professional Subscription",
-            "billingPeriod": "NONE",
-            "planType": "PRO", // 修改为 Pro 类型
+            "billingPeriod": "YEARLY",
+            "planType": "PRO",
             "productId": 9,
             "canUpgrade": false,
             "product": {
@@ -137,8 +156,8 @@ obj = {
     "preferences": {
       "hasError": false,
       "error": null,
-      "id": 7230372, // 保留抓包中的偏好 ID
-      "userId": 11013109, // 使用抓包中的 userId
+      "id": 7230372,
+      "userId": 11013109,
       "createdDate": 1670426386000,
       "updatedDate": 1670426386000,
       "updatedBy": 0,
@@ -177,4 +196,5 @@ obj = {
   "profilingSet": null
 };
 
+console.log("修改后响应: " + JSON.stringify(obj)); // 调试：输出修改后的响应
 $done({ body: JSON.stringify(obj) });
