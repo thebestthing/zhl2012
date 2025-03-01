@@ -1,21 +1,3 @@
-/*************************************
-
-项目名称：wolfram alpha
-更新日期：2023-12-24
-脚本作者：@zhlpp
-使用声明：⚠️仅供参考，🈲转载与售卖！
-
-**************************************
-
-[rewrite_local]
-^https:\/\/www\.wolframalpha\.com\/users\/me\/account\?appid=* url script-response-body https://raw.githubusercontent.com/thebestthing/zhl2012/main/wf1.js 
-
-[mitm]
-hostname = www.wolframalpha.com
-
-*************************************/
-
-
 var body = $response.body;
 var obj = JSON.parse(body);
 
@@ -24,23 +6,23 @@ obj = {
     "info": {
       "hasError": false,
       "error": null,
-      "name": "Cracked",
-      "email": "Cracked by xxx"
+      "name": "zhen hl", // 保留抓包中的真实姓名
+      "email": "zhlsnmsnb778@gmail.com" // 保留抓包中的真实邮箱
     },
     "status": {
       "hasError": false,
       "error": null,
       "signedIn": true,
-      "pro": true,
-      "proForStudents": true,
-      "proForEducators": true,
-      "proLevel": 3
+      "pro": true, // 修改为专业版
+      "proForStudents": true, // 启用学生专业版
+      "proForEducators": true, // 启用教育者专业版
+      "proLevel": 3 // 设置为高级别
     },
     "persona": {
       "classification": "Student",
       "source": null,
       "resourceId": {
-        "userId": 9782356,
+        "userId": 11013109, // 使用抓包中的 userId
         "productId": 9
       }
     },
@@ -48,86 +30,26 @@ obj = {
       "hasError": false,
       "error": null,
       "features": {
-        "practiceSheets": {
-          "units": null,
-          "value": true
-        },
-        "embeddablePods": {
-          "units": null,
-          "value": true
-        },
-        "webApps": {
-          "units": null,
-          "value": ""
-        },
-        "fileUpload": {
-          "units": "MB",
-          "value": 0
-        },
-        "imageInput": {
-          "units": "MB",
-          "value": true
-        },
-        "showSteps": {
-          "units": null,
-          "value": true
-        },
-        "specialCharacterKeyboards": {
-          "units": null,
-          "value": true
-        },
-        "pdfDownload": {
-          "units": null,
-          "value": true
-        },
-        "copyablePlaintext": {
-          "units": null,
-          "value": true
-        },
-        "cdfDownload": {
-          "units": null,
-          "value": true
-        },
-        "dataInput": {
-          "units": null,
-          "value": true
-        },
-        "cdfInteractivePods": {
-          "units": null,
-          "value": true
-        },
-        "customizeGraphicsPods": {
-          "units": null,
-          "value": true
-        },
-        "storeDownloadedData": {
-          "units": null,
-          "value": true
-        },
-        "longerTimeouts": {
-          "units": "seconds",
-          "value": 0
-        },
-        "zoomSubpods": {
-          "units": null,
-          "value": true
-        },
-        "downloadPodData": {
-          "units": null,
-          "value": true
-        },
-        "removeAds": {
-          "units": null,
-          "value": true
-        },
-        "emailProductSupport": {
-          "units": null,
-          "value": true
-        },
-        "saveSubpodAsImage": {
-          "units": null,
-          "value": true
-        }
+        "practiceSheets": { "units": null, "value": true },
+        "embeddablePods": { "units": null, "value": true },
+        "webApps": { "units": null, "value": "" },
+        "fileUpload": { "units": "MB", "value": 0 },
+        "imageInput": { "units": "MB", "value": true },
+        "showSteps": { "units": null, "value": true }, // 启用显示步骤
+        "specialCharacterKeyboards": { "units": null, "value": true },
+        "pdfDownload": { "units": null, "value": true }, // 启用 PDF 下载
+        "copyablePlaintext": { "units": null, "value": true },
+        "cdfDownload": { "units": null, "value": true },
+        "dataInput": { "units": null, "value": true },
+        "cdfInteractivePods": { "units": null, "value": true },
+        "customizeGraphicsPods": { "units": null, "value": true },
+        "storeDownloadedData": { "units": null, "value": true },
+        "longerTimeouts": { "units": "seconds", "value": 0 },
+        "zoomSubpods": { "units": null, "value": true },
+        "downloadPodData": { "units": null, "value": true },
+        "removeAds": { "units": null, "value": true }, // 移除广告
+        "emailProductSupport": { "units": null, "value": true },
+        "saveSubpodAsImage": { "units": null, "value": true }
       }
     },
     "subscriptions": {
@@ -135,28 +57,28 @@ obj = {
       "error": null,
       "hasSubscriptions": true,
       "primarySubscription": {
-        "subscriptionId": 4486323,
-        "userId": 9782356,
-        "planId": 1106,
-        "startDate": "2020-08-04",
-        "nextBillingDate": "2099-12-31",
-        "finalAccessDate": "2099-12-31",
+        "subscriptionId": 7530644, // 保留抓包中的 subscriptionId
+        "userId": 11013109, // 使用抓包中的 userId
+        "planId": 1109, // 修改为 Pro 计划
+        "startDate": "2022-12-07", // 保留抓包中的开始日期
+        "nextBillingDate": "2099-12-31", // 设置为未来日期
+        "finalAccessDate": "2099-12-31", // 设置为未来日期
         "status": "ACTIVE",
-        "paymentType": "NONE",
-        "monthStart": "2020-08-04",
+        "paymentType": "CREDIT_CARD", // 保留抓包中的支付类型
+        "monthStart": "2022-12-07",
         "monthEnd": "2099-12-31",
         "nda": false,
-        "userUuid": "ce6341b4-5c9c-45b9-7584-7542ff503b1c",
+        "userUuid": "fe6f4702-3355-432e-9f29-8e892dbe4d8e", // 保留抓包中的 UUID
         "plan": {
-          "planId": 1109,
-          "name": "Professional",
+          "planId": 1109, // 修改为 Pro 计划
+          "name": "Pro", // 修改为 Pro
           "description": "Wolfram Alpha Professional Subscription",
           "billingPeriod": "NONE",
-          "planType": "PRO",
-          "productId": 12,
+          "planType": "PRO", // 修改为 Pro 类型
+          "productId": 9,
           "canUpgrade": false,
           "product": {
-            "productId": 12,
+            "productId": 9,
             "name": "Wolfram|Alpha",
             "type": "SUBSCRIPTION",
             "prettyName": "wa",
@@ -174,28 +96,28 @@ obj = {
       "nextPaidSubscription": null,
       "allSubscriptions": [
         {
-          "subscriptionId": 4486323,
-          "userId": 9782356,
-          "planId": 1106,
-          "startDate": "2020-08-04",
-          "nextBillingDate": "2099-12-31",
-          "finalAccessDate": "2099-12-31",
+          "subscriptionId": 7530644, // 保留抓包中的 subscriptionId
+          "userId": 11013109, // 使用抓包中的 userId
+          "planId": 1109, // 修改为 Pro 计划
+          "startDate": "2022-12-07", // 保留抓包中的开始日期
+          "nextBillingDate": "2099-12-31", // 设置为未来日期
+          "finalAccessDate": "2099-12-31", // 设置为未来日期
           "status": "ACTIVE",
-          "paymentType": "NONE",
-          "monthStart": "2020-08-04",
+          "paymentType": "CREDIT_CARD", // 保留抓包中的支付类型
+          "monthStart": "2022-12-07",
           "monthEnd": "2099-12-31",
           "nda": false,
-          "userUuid": "ce6341b4-5c9c-45b9-7584-7542ff503b1c",
+          "userUuid": "fe6f4702-3355-432e-9f29-8e892dbe4d8e", // 保留抓包中的 UUID
           "plan": {
-            "planId": 1109,
-            "name": "Pro",
+            "planId": 1109, // 修改为 Pro 计划
+            "name": "Pro", // 修改为 Pro
             "description": "Wolfram Alpha Professional Subscription",
             "billingPeriod": "NONE",
-            "planType": "PRO",
-            "productId": 12,
+            "planType": "PRO", // 修改为 Pro 类型
+            "productId": 9,
             "canUpgrade": false,
             "product": {
-              "productId": 12,
+              "productId": 9,
               "name": "Wolfram|Alpha",
               "type": "SUBSCRIPTION",
               "prettyName": "wa",
@@ -215,10 +137,10 @@ obj = {
     "preferences": {
       "hasError": false,
       "error": null,
-      "id": 8058195,
-      "userId": 9782356,
-      "createdDate": 1596536830000,
-      "updatedDate": 1596536830000,
+      "id": 7230372, // 保留抓包中的偏好 ID
+      "userId": 11013109, // 使用抓包中的 userId
+      "createdDate": 1670426386000,
+      "updatedDate": 1670426386000,
       "updatedBy": 0,
       "location": "Automatic",
       "country": "Automatic",
