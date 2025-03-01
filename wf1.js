@@ -9,6 +9,7 @@
 
 [rewrite_local]
 ^https:\/\/www\.wolframalpha\.com\/users\/me\/account\?appid=* url script-response-body https://raw.githubusercontent.com/thebestthing/zhl2012/main/wf1.js 
+^https:\/\/www\.wolframalpha\.com\/subscriptions.* url script-response-body https://raw.githubusercontent.com/thebestthing/zhl2012/main/wf1.js
 
 [mitm]
 hostname = www.wolframalpha.com, *.wolframalpha.com, wolframalpha.com
@@ -17,184 +18,47 @@ hostname = www.wolframalpha.com, *.wolframalpha.com, wolframalpha.com
 
 
 var body = $response.body;
-console.log("原始响应: " + body); // 调试：输出原始响应
+console.log("原始响应: " + body); // 输出服务器返回的原始数据
+
 var obj = JSON.parse(body);
+obj.account.status.pro = true; // 修改为 Pro
+obj.account.status.proForStudents = true;
+obj.account.status.proForEducators = true;
+obj.account.status.proLevel = 3;
+obj.account.subscriptions.primarySubscription.planId = 1109; // Pro 计划
+obj.account.subscriptions.primarySubscription.plan.name = "Pro";
+obj.account.subscriptions.primarySubscription.plan.description = "Wolfram Alpha Professional Subscription";
+obj.account.subscriptions.primarySubscription.plan.planType = "PRO";
+obj.account.subscriptions.primarySubscription.plan.billingPeriod = "YEARLY";
+obj.account.subscriptions.primarySubscription.nextBillingDate = "2099-12-31";
+obj.account.subscriptions.primarySubscription.finalAccessDate = "2099-12-31";
+obj.account.subscriptions.allSubscriptions[0].planId = 1109;
+obj.account.subscriptions.allSubscriptions[0].plan.name = "Pro";
+obj.account.subscriptions.allSubscriptions[0].plan.description = "Wolfram Alpha Professional Subscription";
+obj.account.subscriptions.allSubscriptions[0].plan.planType = "PRO";
+obj.account.subscriptions.allSubscriptions[0].plan.billingPeriod = "YEARLY";
+obj.account.subscriptions.allSubscriptions[0].nextBillingDate = "2099-12-31";
+obj.account.subscriptions.allSubscriptions[0].finalAccessDate = "2099-12-31";
 
-obj = {
-  "account": {
-    "info": {
-      "hasError": false,
-      "error": null,
-      "name": "zhen hl",
-      "email": "zhlsnmsnb778@gmail.com"
-    },
-    "status": {
-      "hasError": false,
-      "error": null,
-      "signedIn": true,
-      "pro": true,
-      "proForStudents": true,
-      "proForEducators": true,
-      "proLevel": 3
-    },
-    "persona": {
-      "classification": "Student",
-      "source": null,
-      "resourceId": {
-        "userId": 11013109,
-        "productId": 9
-      }
-    },
-    "permissions": {
-      "hasError": false,
-      "error": null,
-      "features": {
-        "practiceSheets": { "units": null, "value": true },
-        "embeddablePods": { "units": null, "value": true },
-        "webApps": { "units": null, "value": "" },
-        "fileUpload": { "units": "MB", "value": 0 },
-        "imageInput": { "units": "MB", "value": true },
-        "showSteps": { "units": null, "value": true },
-        "specialCharacterKeyboards": { "units": null, "value": true },
-        "pdfDownload": { "units": null, "value": true },
-        "copyablePlaintext": { "units": null, "value": true },
-        "cdfDownload": { "units": null, "value": true },
-        "dataInput": { "units": null, "value": true },
-        "cdfInteractivePods": { "units": null, "value": true },
-        "customizeGraphicsPods": { "units": null, "value": true },
-        "storeDownloadedData": { "units": null, "value": true },
-        "longerTimeouts": { "units": "seconds", "value": 0 },
-        "zoomSubpods": { "units": null, "value": true },
-        "downloadPodData": { "units": null, "value": true },
-        "removeAds": { "units": null, "value": true },
-        "emailProductSupport": { "units": null, "value": true },
-        "saveSubpodAsImage": { "units": null, "value": true }
-      }
-    },
-    "subscriptions": {
-      "hasError": false,
-      "error": null,
-      "hasSubscriptions": true,
-      "primarySubscription": {
-        "subscriptionId": 7530644,
-        "userId": 11013109,
-        "planId": 1109, // Pro 计划
-        "startDate": "2022-12-07",
-        "nextBillingDate": "2099-12-31",
-        "finalAccessDate": "2099-12-31",
-        "status": "ACTIVE",
-        "paymentType": "CREDIT_CARD",
-        "monthStart": "2022-12-07",
-        "monthEnd": "2099-12-31",
-        "nda": false,
-        "userUuid": "fe6f4702-3355-432e-9f29-8e892dbe4d8e",
-        "plan": {
-          "planId": 1109,
-          "name": "Pro",
-          "description": "Wolfram Alpha Professional Subscription",
-          "billingPeriod": "YEARLY",
-          "planType": "PRO",
-          "productId": 9, // 保留抓包值，可能是通用的
-          "canUpgrade": false,
-          "product": {
-            "productId": 9,
-            "name": "Wolfram|Alpha",
-            "type": "SUBSCRIPTION",
-            "prettyName": "wa",
-            "productReady": false,
-            "contactUsUrl": "https://www.wolframalpha.com/contact.html",
-            "productUrl": "https://www.wolframalpha.com/",
-            "productHost": "www.wolframalpha.com",
-            "productPricingUrl": "https://www.wolframalpha.com/pro",
-            "productReleased": false,
-            "learnAboutUrl": "https://products.wolframalpha.com/"
-          }
-        }
-      },
-      "nextSubscription": null,
-      "nextPaidSubscription": null,
-      "allSubscriptions": [
-        {
-          "subscriptionId": 7530644,
-          "userId": 11013109,
-          "planId": 1109,
-          "startDate": "2022-12-07",
-          "nextBillingDate": "2099-12-31",
-          "finalAccessDate": "2099-12-31",
-          "status": "ACTIVE",
-          "paymentType": "CREDIT_CARD",
-          "monthStart": "2022-12-07",
-          "monthEnd": "2099-12-31",
-          "nda": false,
-          "userUuid": "fe6f4702-3355-432e-9f29-8e892dbe4d8e",
-          "plan": {
-            "planId": 1109,
-            "name": "Pro",
-            "description": "Wolfram Alpha Professional Subscription",
-            "billingPeriod": "YEARLY",
-            "planType": "PRO",
-            "productId": 9,
-            "canUpgrade": false,
-            "product": {
-              "productId": 9,
-              "name": "Wolfram|Alpha",
-              "type": "SUBSCRIPTION",
-              "prettyName": "wa",
-              "productReady": false,
-              "contactUsUrl": "https://www.wolframalpha.com/contact.html",
-              "productUrl": "https://www.wolframalpha.com/",
-              "productHost": "www.wolframalpha.com",
-              "productPricingUrl": "https://www.wolframalpha.com/pro",
-              "productReleased": false,
-              "learnAboutUrl": "https://products.wolframalpha.com/"
-            }
-          }
-        }
-      ],
-      "billingDetails": null
-    },
-    "preferences": {
-      "hasError": false,
-      "error": null,
-      "id": 7230372,
-      "userId": 11013109,
-      "createdDate": 1670426386000,
-      "updatedDate": 1670426386000,
-      "updatedBy": 0,
-      "location": "Automatic",
-      "country": "Automatic",
-      "timezone": "Automatic",
-      "currency": "Automatic",
-      "dateFormat": "Automatic",
-      "unitFormat": 0,
-      "queryHistory": false,
-      "querySuggestion": false,
-      "keyboard": 0,
-      "dataFormat": "Excel 97-2004",
-      "imageFormat2d": "gif",
-      "imageFormat3d": "format 1",
-      "soundFormat": "mp3",
-      "resultsWidth": 4,
-      "fontSize": 0,
-      "contrast": 0,
-      "homepageBackground": "blue-circles",
-      "homepageHints": 0,
-      "homepageHistory": false,
-      "homepageFavorites": false,
-      "homepageData": false,
-      "homepageShortcuts": false
-    },
-    "links": {
-      "facebook": null
-    },
-    "hasError": false,
-    "error": null,
-    "profilingSet": null
-  },
-  "hasError": false,
-  "error": null,
-  "profilingSet": null
-};
+// 启用所有 Pro 权限
+var features = obj.account.permissions.features;
+features.showSteps.value = true;
+features.pdfDownload.value = true;
+features.removeAds.value = true;
+features.imageInput.value = true;
+features.copyablePlaintext.value = true;
+features.cdfDownload.value = true;
+features.dataInput.value = true;
+features.cdfInteractivePods.value = true;
+features.customizeGraphicsPods.value = true;
+features.storeDownloadedData.value = true;
+features.zoomSubpods.value = true;
+features.downloadPodData.value = true;
+features.emailProductSupport.value = true;
+features.saveSubpodAsImage.value = true;
+features.specialCharacterKeyboards.value = true;
+features.practiceSheets.value = true;
+features.embeddablePods.value = true;
 
-console.log("修改后响应: " + JSON.stringify(obj)); // 调试：输出修改后的响应
+console.log("修改后响应: " + JSON.stringify(obj)); // 输出修改后的数据
 $done({ body: JSON.stringify(obj) });
