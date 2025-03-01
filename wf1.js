@@ -8,7 +8,7 @@
 **************************************
 
 [rewrite_local]
-^https:\/\/www\.wolframalpha\.com\/user\/me\/account\?appid=* url script-response-body https://raw.githubusercontent.com/thebestthing/zhl2012/main/wf1.js 
+^https:\/\/www\.wolframalpha\.com\/users\/me\/account\?appid=* url script-response-body https://raw.githubusercontent.com/thebestthing/zhl2012/main/wf1.js 
 
 [mitm]
 hostname = www.wolframalpha.com
@@ -17,37 +17,242 @@ hostname = www.wolframalpha.com
 
 
 var body = $response.body;
-var json = JSON.parse(body);
+var obj = JSON.parse(body);
 
-// 修改 account.status
-if (json.account && json.account.status) {
-    json.account.status.pro = true;
-    json.account.status.proForStudents = true;
-    json.account.status.proForEducators = true;
-    if (json.account.status.proLevel) {
-        json.account.status.proLevel = 3;
-    }
-}
-
-// 修改 account.subscriptions
-if (json.account && json.account.subscriptions) {
-    json.account.subscriptions.hasSubscriptions = true;
-    if (json.account.subscriptions.primarySubscription) {
-        json.account.subscriptions.primarySubscription.status = "ACTIVE";
-        if (json.account.subscriptions.primarySubscription.plan) {
-            if (json.account.subscriptions.primarySubscription.plan.planType) {
-                json.account.subscriptions.primarySubscription.plan.planType = "PRO";
-            }
+obj = {
+  "account": {
+    "info": {
+      "hasError": false,
+      "error": null,
+      "name": "Cracked",
+      "email": "Cracked by xxx"
+    },
+    "status": {
+      "hasError": false,
+      "error": null,
+      "signedIn": true,
+      "pro": true,
+      "proForStudents": true,
+      "proForEducators": true,
+      "proLevel": 3
+    },
+    "persona": {
+      "classification": "Student",
+      "source": null,
+      "resourceId": {
+        "userId": 9782356,
+        "productId": 9
+      }
+    },
+    "permissions": {
+      "hasError": false,
+      "error": null,
+      "features": {
+        "practiceSheets": {
+          "units": null,
+          "value": true
+        },
+        "embeddablePods": {
+          "units": null,
+          "value": true
+        },
+        "webApps": {
+          "units": null,
+          "value": ""
+        },
+        "fileUpload": {
+          "units": "MB",
+          "value": 0
+        },
+        "imageInput": {
+          "units": "MB",
+          "value": true
+        },
+        "showSteps": {
+          "units": null,
+          "value": true
+        },
+        "specialCharacterKeyboards": {
+          "units": null,
+          "value": true
+        },
+        "pdfDownload": {
+          "units": null,
+          "value": true
+        },
+        "copyablePlaintext": {
+          "units": null,
+          "value": true
+        },
+        "cdfDownload": {
+          "units": null,
+          "value": true
+        },
+        "dataInput": {
+          "units": null,
+          "value": true
+        },
+        "cdfInteractivePods": {
+          "units": null,
+          "value": true
+        },
+        "customizeGraphicsPods": {
+          "units": null,
+          "value": true
+        },
+        "storeDownloadedData": {
+          "units": null,
+          "value": true
+        },
+        "longerTimeouts": {
+          "units": "seconds",
+          "value": 0
+        },
+        "zoomSubpods": {
+          "units": null,
+          "value": true
+        },
+        "downloadPodData": {
+          "units": null,
+          "value": true
+        },
+        "removeAds": {
+          "units": null,
+          "value": true
+        },
+        "emailProductSupport": {
+          "units": null,
+          "value": true
+        },
+        "saveSubpodAsImage": {
+          "units": null,
+          "value": true
         }
-    }
-}
+      }
+    },
+    "subscriptions": {
+      "hasError": false,
+      "error": null,
+      "hasSubscriptions": true,
+      "primarySubscription": {
+        "subscriptionId": 4486323,
+        "userId": 9782356,
+        "planId": 1106,
+        "startDate": "2020-08-04",
+        "nextBillingDate": "2099-12-31",
+        "finalAccessDate": "2099-12-31",
+        "status": "ACTIVE",
+        "paymentType": "NONE",
+        "monthStart": "2020-08-04",
+        "monthEnd": "2099-12-31",
+        "nda": false,
+        "userUuid": "ce6341b4-5c9c-45b9-7584-7542ff503b1c",
+        "plan": {
+          "planId": 1109,
+          "name": "Professional",
+          "description": "Wolfram Alpha Professional Subscription",
+          "billingPeriod": "NONE",
+          "planType": "PRO",
+          "productId": 12,
+          "canUpgrade": false,
+          "product": {
+            "productId": 12,
+            "name": "Wolfram|Alpha",
+            "type": "SUBSCRIPTION",
+            "prettyName": "wa",
+            "productReady": false,
+            "contactUsUrl": "https://www.wolframalpha.com/contact.html",
+            "productUrl": "https://www.wolframalpha.com/",
+            "productHost": "www.wolframalpha.com",
+            "productPricingUrl": "https://www.wolframalpha.com/pro",
+            "productReleased": false,
+            "learnAboutUrl": "https://products.wolframalpha.com/"
+          }
+        }
+      },
+      "nextSubscription": null,
+      "nextPaidSubscription": null,
+      "allSubscriptions": [
+        {
+          "subscriptionId": 4486323,
+          "userId": 9782356,
+          "planId": 1106,
+          "startDate": "2020-08-04",
+          "nextBillingDate": "2099-12-31",
+          "finalAccessDate": "2099-12-31",
+          "status": "ACTIVE",
+          "paymentType": "NONE",
+          "monthStart": "2020-08-04",
+          "monthEnd": "2099-12-31",
+          "nda": false,
+          "userUuid": "ce6341b4-5c9c-45b9-7584-7542ff503b1c",
+          "plan": {
+            "planId": 1109,
+            "name": "Pro",
+            "description": "Wolfram Alpha Professional Subscription",
+            "billingPeriod": "NONE",
+            "planType": "PRO",
+            "productId": 12,
+            "canUpgrade": false,
+            "product": {
+              "productId": 12,
+              "name": "Wolfram|Alpha",
+              "type": "SUBSCRIPTION",
+              "prettyName": "wa",
+              "productReady": false,
+              "contactUsUrl": "https://www.wolframalpha.com/contact.html",
+              "productUrl": "https://www.wolframalpha.com/",
+              "productHost": "www.wolframalpha.com",
+              "productPricingUrl": "https://www.wolframalpha.com/pro",
+              "productReleased": false,
+              "learnAboutUrl": "https://products.wolframalpha.com/"
+            }
+          }
+        }
+      ],
+      "billingDetails": null
+    },
+    "preferences": {
+      "hasError": false,
+      "error": null,
+      "id": 8058195,
+      "userId": 9782356,
+      "createdDate": 1596536830000,
+      "updatedDate": 1596536830000,
+      "updatedBy": 0,
+      "location": "Automatic",
+      "country": "Automatic",
+      "timezone": "Automatic",
+      "currency": "Automatic",
+      "dateFormat": "Automatic",
+      "unitFormat": 0,
+      "queryHistory": false,
+      "querySuggestion": false,
+      "keyboard": 0,
+      "dataFormat": "Excel 97-2004",
+      "imageFormat2d": "gif",
+      "imageFormat3d": "format 1",
+      "soundFormat": "mp3",
+      "resultsWidth": 4,
+      "fontSize": 0,
+      "contrast": 0,
+      "homepageBackground": "blue-circles",
+      "homepageHints": 0,
+      "homepageHistory": false,
+      "homepageFavorites": false,
+      "homepageData": false,
+      "homepageShortcuts": false
+    },
+    "links": {
+      "facebook": null
+    },
+    "hasError": false,
+    "error": null,
+    "profilingSet": null
+  },
+  "hasError": false,
+  "error": null,
+  "profilingSet": null
+};
 
-// 设置 account.info.name 和 email 为通用值
-if (json.account && json.account.info) {
-    json.account.info.name = "User";
-    json.account.info.email = "user@example.com";
-}
-
-body = JSON.stringify(json);
-$done({body: body});
-​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​
+$done({ body: JSON.stringify(obj) });
