@@ -43,3 +43,37 @@ if (obj.account && obj.account.status) {
     obj.account.subscriptions.allSubscriptions[0].plan.billingPeriod = "YEARLY";
     obj.account.subscriptions.allSubscriptions[0].nextBillingDate = "2099-12-31";
     obj.account.subscriptions.allSubscriptions[0].finalAccessDate = "2099-12-31";
+    obj.account.subscriptions.allSubscriptions[0].startDate = "2025-11-17";
+    obj.account.subscriptions.allSubscriptions[0].monthStart = "2025-11-17";
+    obj.account.subscriptions.allSubscriptions[0].monthEnd = "2025-12-17";
+
+    obj.account.subscriptions.primarySubscription.plan.product.productReleased = true;
+    obj.account.subscriptions.primarySubscription.plan.product.productReady = true;
+    obj.account.subscriptions.allSubscriptions[0].plan.product.productReleased = true;
+    obj.account.subscriptions.allSubscriptions[0].plan.product.productReady = true;
+
+    // 启用所有 Pro 权限
+    var features = obj.account.permissions.features;
+    features.showSteps.value = true;
+    features.pdfDownload.value = true;
+    features.removeAds.value = true;
+    features.imageInput.value = true; // Set back to true to avoid type mismatch
+    features.copyablePlaintext.value = true;
+    features.cdfDownload.value = true;
+    features.dataInput.value = true;
+    features.cdfInteractivePods.value = true;
+    features.customizeGraphicsPods.value = true;
+    features.storeDownloadedData.value = true;
+    features.zoomSubpods.value = true;
+    features.downloadPodData.value = true;
+    features.emailProductSupport.value = true;
+    features.saveSubpodAsImage.value = true;
+    features.specialCharacterKeyboards.value = true;
+    features.practiceSheets.value = true;
+    features.embeddablePods.value = true;
+    features.fileUpload.value = 60;
+    features.longerTimeouts.value = 180;
+}
+
+console.log("修改后响应: " + JSON.stringify(obj));
+$done({ body: JSON.stringify(obj) });
