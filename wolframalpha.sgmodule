@@ -1,9 +1,8 @@
 #!name=wolfram alpha
 #!desc=wolfram alpha
 
-[MITM]
-
-hostname = %APPEND% www.wolframalpha.com, *.wolframalpha.com, wolframalpha.com, *.wolfram.com, *.wolframcdn.com
+[mitm]
+hostname = www.wolframalpha.com, *.wolframalpha.com, wolframalpha.com, *.wolfram.com, *.wolframcdn.com, api.mathpix.com, **gateway.wolframalpha.com**
 
 [Script]
 
