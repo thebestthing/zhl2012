@@ -1,9 +1,21 @@
 #!name=wolfram alpha
-#!desc=wolfram alpha
+#!desc=wolfram alpha Pro Premium 激活 (修复图片上传)
 
 [mitm]
-hostname = www.wolframalpha.com, *.wolframalpha.com, wolframalpha.com, *.wolfram.com, *.wolframcdn.com, api.mathpix.com, **gateway.wolframalpha.com**
+# 确保所有相关域名都包含在内，用于 HTTPS 解密
+hostname = www.wolframalpha.com, *.wolframalpha.com, wolframalpha.com, *.wolfram.com, *.wolframcdn.com, api.mathpix.com, gateway.wolframalpha.com
 
 [Script]
 
-wolframalpha = type=http-response, pattern=^https:\/\/www\.wolframalpha\.com\/users\/me\/account\?appid=*, script-path= https://raw.githubusercontent.com/thebestthing/zhl2012/refs/heads/main/wf1.js, requires-body=true, script-update-interval=0, max-size=-1, timeout=60
+# 1. Wolfram Alpha 账户权限和订阅信息
+wolframalpha_account = type=http-response, pattern=^https:\/\/www\.wolframalpha\.com\/users\/me\/account\?appid=*, script-path=https://raw.githubusercontent.com/thebestthing/zhl2012/refs/heads/main/wf1.js, requires-body=true, max-size=-1, timeout=60
+
+# 2. Wolfram Alpha 订阅页面（防止降级）
+wolframalpha_subs = type=http-response, pattern=^https:\/\/www\.wolframalpha\.com\/subscriptions.*, script-path=https://raw.githubusercontent.com/thebestthing/zhl2012/refs/heads/main/wf1.js, requires-body=true, max-size=-1, timeout=60
+
+# 3. Wolfram Alpha 文件上传 API (修复上传失败/Cannot GET 错误)
+wolframalpha_upload = type=http-response, pattern=^https:\/\/gateway\.wolframalpha\.com\/calculate\/upload\?.*, script-path=https://raw.githubusercontent.com/thebestthing/zhl2012/refs/heads/main/wf1.js, requires-body=true, max-size=-1, timeout=60
+
+# 4. Mathpix 图像分析/OCR API (修复 Could not parse results 错误)
+wolframalpha_mathpix = type=http-response, pattern=^https:\/\/api\.mathpix\.com\/v3\/latex.*, script-path=https://raw.githubusercontent.com/thebestthing/zhl2012/refs/heads/main/wf1.js, requires-body=true, max-size=-1, timeout=60
+
