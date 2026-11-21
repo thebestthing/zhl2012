@@ -1,6 +1,6 @@
 #!name=吃瓜监控（黑料不打烊 + 51吃瓜）
-#!desc=定时监控黑料不打烊和51吃瓜最新内容并推送通知
+#!desc=定时监控黑料不打烊和51吃瓜最新内容并推送通知（带封面图）
 #!category=娱乐
 
 [Script]
-吃瓜监控 = type=cron,cronexp=0 8,12,18,22 * * *,wake-system=1,timeout=60,script-path=https://raw.githubusercontent.com/thebestthing/zhl2012/5e08f763ec23d48fc9ced88842ad20da995f13d3/chigua.js,script-update-interval=0
+吃瓜监控 = type=cron,cronexp=0 8,12,18,22 * * *,wake-system=1,timeout=180,script-path=https://raw.githubusercontent.com/thebestthing/zhl2012/main/chigua.js,script-update-interval=0
