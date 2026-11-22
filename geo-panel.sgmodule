@@ -1,0 +1,10 @@
+#!name=本地地质面板
+#!desc=通过出口IP定位，显示当地近期地震（USGS）、历史大震与海拔。参数：LAT/LON 留空=IP自动定位（走代理节点时定位会偏，请填固定坐标）；RADIUS 检索半径km；MINMAG 最小震级；DAYS 统计天数。数据源 ipwho.is / USGS / Open-Meteo，全免费无 Key。
+#!arguments=LAT:"",LON:"",RADIUS:"800",MINMAG:"2.5",DAYS:"30"
+#!arguments-desc=LAT:纬度，留空=按出口IP自动定位（例 潮州 23.66）\nLON:经度，留空=自动定位（例 116.62）\nRADIUS:近期地震检索半径，单位 km\nMINMAG:统计的最小震级\nDAYS:近期地震统计天数
+
+[Panel]
+本地地质 = script-name=本地地质, title="本地地质", style=info, update-interval=3600
+
+[Script]
+本地地质 = type=generic, timeout=60, script-path=https://raw.githubusercontent.com/thebestthing/zhl2012/main/geo-panel.js, argument={{{LAT}}}|{{{LON}}}|{{{RADIUS}}}|{{{MINMAG}}}|{{{DAYS}}}
