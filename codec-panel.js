@@ -1,7 +1,7 @@
 /******************************************
- * Codec 工具箱 · Windows 硬件监控 Surge 面板
+ * Codec 工具箱 · Windows 硬件监控 Surge 面板（详细版）
  * 数据来源：工具箱「硬件监控」子站的 /api/snapshot 接口
- * sharecode 与 token 在模块的参数表里填（模块用 %SHARECODE%/%TOKEN% 拼出接口地址），
+ * sharecode 与 token 在模块的参数表里填（模块用 {{{SHARECODE}}}/{{{TOKEN}}} 拼出接口地址），
  * 相当于密码：只保存在你本机 Surge 里，不要提交到公开仓库、不要外传。
  ******************************************/
 
@@ -33,15 +33,28 @@ function shortGpu(name) {
 }
 
 function fmtUptime(sec) {
-  if (!sec && sec !== 0) return "--";
+  if (sec === null || sec === undefined) return "--";
   const d = Math.floor(sec / 86400);
   const h = Math.floor((sec % 86400) / 3600);
   const mi = Math.floor((sec % 3600) / 60);
   return (d > 0 ? d + "天" : "") + h + "小时" + (d === 0 ? mi + "分" : "");
 }
 
+function fmtRate(bps) {
+  if (bps === null || bps === undefined) return "--";
+  if (bps >= 1048576) return fmt(bps / 1048576) + " MB/s";
+  if (bps >= 1024) return fmt(bps / 1024, 0) + " KB/s";
+  return fmt(bps, 0) + " B/s";
+}
+
+function fmtMem(bytes) {
+  if (bytes === null || bytes === undefined) return "--";
+  if (bytes >= 1073741824) return fmt(bytes / 1073741824, 2) + " GB";
+  return fmt(bytes / 1048576, 0) + " MB";
+}
+
 if (!API_URL || API_URL.indexOf("XXXX") >= 0 || API_URL.indexOf("YYYY") >= 0) {
-  done("⚠️ 还没填参数\n打开 Surge 里这个模块的详情页，在参数表里填上 sharecode 和 token（在你的硬件监控页面地址栏里，?sharecode= 后面和 &token= 后面那两串）。");
+  done("⚠️ 还没填参数\n打开 Surge 里这个模块的详情页，在参数表里填上 SHARECODE 和 TOKEN（在你的硬件监控页面地址栏里，?sharecode= 后面和 &token= 后面那两串，用复制粘贴，不要手打）。");
 } else {
   $httpClient.get(
     { url: API_URL, timeout: 12, headers: { "User-Agent": "Surge" } },
@@ -59,16 +72,14 @@ if (!API_URL || API_URL.indexOf("XXXX") >= 0 || API_URL.indexOf("YYYY") >= 0) {
         const l = m.latest;
         const lines = [];
 
-        // 在线状态（以服务端时间为准算最后上报距今多久）
+        // 在线状态
         let ageSec = null;
         if (j.serverTime && m.lastSeen) {
           ageSec = Math.max(0, Math.round((Date.parse(j.serverTime) - Date.parse(m.lastSeen)) / 1000));
         }
-        if (m.online) {
-          lines.push("🟢 在线" + (ageSec !== null ? " · " + ageSec + " 秒前上报" : ""));
-        } else {
-          lines.push("🔴 离线" + (ageSec !== null ? " · 最后上报 " + Math.floor(ageSec / 60) + " 分钟前" : ""));
-        }
+        lines.push(m.online
+          ? "🟢 在线" + (ageSec !== null ? " · " + ageSec + " 秒前上报" : "")
+          : "🔴 离线" + (ageSec !== null ? " · 最后上报 " + Math.floor(ageSec / 60) + " 分钟前" : ""));
 
         // CPU
         const cpu = l.cpu || {};
@@ -78,12 +89,17 @@ if (!API_URL || API_URL.indexOf("XXXX") >= 0 || API_URL.indexOf("YYYY") >= 0) {
           cpuLine += " · " + fmt(l.temperatures.cpuCelsius, 0) + "℃";
         }
         lines.push(cpuLine);
+        if (cpu.cores || cpu.processCount) {
+          lines.push("核心 " + (cpu.cores || "--") + "核/" + (cpu.logicalProcessors || "--") + "线程 · 进程 " + (cpu.processCount || "--") + " · 线程 " + (cpu.threadCount || "--"));
+        }
 
         // 内存
         const mem = l.memory || {};
-        lines.push("内存 " + fmt(mem.usedPercent) + "% · " + fmt(mem.usedGiB) + "/" + fmt(mem.totalGiB) + " GB");
+        let memLine = "内存 " + fmt(mem.usedPercent) + "% · " + fmt(mem.usedGiB) + "/" + fmt(mem.totalGiB) + " GB";
+        if (mem.availableGiB !== undefined) memLine += " · 可用 " + fmt(mem.availableGiB) + " GB";
+        lines.push(memLine);
 
-        // 显卡（取第一块独显/主显卡）
+        // 显卡
         const gpu = (l.gpus || []).filter(g => /NVIDIA|AMD|Radeon|Intel/i.test(g.name || ""))[0];
         if (gpu) {
           let g = "显卡 " + shortGpu(gpu.name);
@@ -93,22 +109,50 @@ if (!API_URL || API_URL.indexOf("XXXX") >= 0 || API_URL.indexOf("YYYY") >= 0) {
             g += " · 显存 " + fmt(l.gpuMemory.dedicatedUsedBytes / 1073741824) + "/" + fmt(l.gpuMemory.dedicatedLimitBytes / 1073741824, 0) + " GB";
           }
           lines.push(g);
+          if (gpu.currentHorizontalResolution) {
+            lines.push("屏幕 " + gpu.currentHorizontalResolution + "×" + gpu.currentVerticalResolution + (gpu.currentRefreshRate ? " @" + gpu.currentRefreshRate + "Hz" : ""));
+          }
         }
 
-        // 磁盘
+        // 磁盘占用
         (l.disks || []).forEach(dsk => {
           let d = "磁盘 " + dsk.name + " " + fmt(dsk.usedPercent) + "% · 剩 " + fmt(dsk.freeGiB, 2) + " GB";
           if (dsk.freeGiB !== null && dsk.freeGiB !== undefined && dsk.freeGiB < 5) d += " ⚠️ 快满了";
           lines.push(d);
         });
+        // 磁盘活动（取活动率最高的一块）
+        const perfs = (l.diskPerformance || []).slice().sort((a, b) => (b.activePercent || 0) - (a.activePercent || 0));
+        if (perfs.length) {
+          const p = perfs[0];
+          lines.push("磁盘活动 " + fmt(p.activePercent, 0) + "% · 读 " + fmtRate(p.readBytesPerSec) + " · 写 " + fmtRate(p.writeBytesPerSec));
+        }
 
-        // 网络 + 运行时间 + 电池
+        // 网络
         const net = l.network || {};
-        let tail = "网络 ↓" + fmt(net.downloadMbps, 2) + " ↑" + fmt(net.uploadMbps, 2) + " Mbps";
-        if (l.system && l.system.uptimeSeconds !== undefined) tail += " · 已运行 " + fmtUptime(l.system.uptimeSeconds);
-        lines.push(tail);
+        let netLine = "网络 ↓" + fmt(net.downloadMbps, 2) + " ↑" + fmt(net.uploadMbps, 2) + " Mbps";
+        if (net.linkMbps) netLine += " · 链路 " + fmt(net.linkMbps, 0) + " Mbps";
+        lines.push(netLine);
+
+        // 电池
         if (l.battery && l.battery.present) {
           lines.push("电池 " + fmt(l.battery.percent, 0) + "% · " + (l.battery.statusText || ""));
+        }
+
+        // 系统
+        const sys = l.system || {};
+        let sysLine = "系统 " + (sys.os || "").replace(/^Microsoft\s*/i, "");
+        if (sys.model) sysLine += " · " + sys.model;
+        lines.push(sysLine);
+        if (sys.uptimeSeconds !== undefined) lines.push("已运行 " + fmtUptime(sys.uptimeSeconds));
+
+        // 进程 Top
+        const tops = l.topProcesses || [];
+        if (tops.length) {
+          const byCpu = tops.slice(0, 3).map(p => p.name + " " + fmt(p.cpuPercent) + "%").join(" · ");
+          lines.push("吃CPU: " + byCpu);
+          const byMem = tops.slice().sort((a, b) => (b.memoryBytes || 0) - (a.memoryBytes || 0)).slice(0, 2)
+            .map(p => p.name + " " + fmtMem(p.memoryBytes)).join(" · ");
+          lines.push("吃内存: " + byMem);
         }
 
         done(lines.join("\n"), "🖥 " + (l.machineName || "Windows") + " 硬件监控");
