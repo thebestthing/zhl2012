@@ -1,13 +1,13 @@
 /******************************************
- * 黑料不打烊 + 51吃瓜 定时监控推送（带封面图版 v4）
- * 更新: 2026-11-21
+ * 黑料不打烊 + 51吃瓜 定时监控推送（带封面图版 v5）
+ * 更新: 2026-11-22
  * 适用: Surge（iOS 5.11.0+ 带图通知）/ Loon / Quantumult X
  * 说明:
  *  1. 解析首页文章卡片，提取每篇的封面图
  *  2. 两站图床的图片是 AES-128-CBC 加密的（站点前端 JS 解密后才显示），
  *     直接拿原图 URL 当通知附件，系统解不开，所以永远不显示。
  *     本脚本内置纯 JS AES 解密：下载 → 解密 → base64 附件推送。
- *  3. 去重用“已读ID集合”，置顶帖、排序变化也不会漏推/重复推
+ *  3. 不做去重（v5 起，用户要求）：每次运行直接推送首页最新 MAX_NOTIFY 条
  *  4. 卡片没提取到图时，自动抓文章页补图
  *  5. 推送细节都写进脚本日志，出问题先看日志
  *  注意: 站点以后若更换加密密钥，日志会出现“解密后仍不是有效图片”，需更新密钥
@@ -37,8 +37,7 @@ const sites = [
   }
 ];
 
-const MAX_NOTIFY = 5;    // 每次最多推送几条
-const SEEN_KEEP = 60;    // 已读ID最多记多少个
+const MAX_NOTIFY = 5;    // 每次每站推送最新几条
 const TIMEOUT = 15;      // 请求超时（秒）
 const FETCH_DETAIL_IMG = true; // 卡片没图时是否抓文章页补图
 const MAX_IMG_BYTES = 3 * 1024 * 1024; // 超过这个大小的图片改用 media-url
@@ -70,7 +69,7 @@ const UA = "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/6
   }
 
   if (totalNew === 0) {
-    console.log("本次无新内容");
+    console.log("本次未抓到内容（两站首页都抓取/解析失败）");
   }
   $done();
 })();
@@ -84,20 +83,8 @@ async function fetchSite(site) {
       const posts = parsePosts(html, domain);
       if (posts.length === 0) continue;
 
-      // 已读ID集合（兼容旧版存的单个ID）
-      const seen = new Set(
-        (($persistentStore.read(site.key) || "") + "")
-          .split(",")
-          .map(s => s.trim())
-          .filter(Boolean)
-      );
-
-      const news = posts.filter(p => !seen.has(p.id)).slice(0, MAX_NOTIFY);
-
-      // 本次首页见过的ID都记为已读，避免下次重复推积压
-      const merged = [...posts.map(p => p.id), ...seen];
-      const keep = [...new Set(merged)].slice(0, SEEN_KEEP);
-      $persistentStore.write(keep.join(","), site.key);
+      // 不去重：直接取首页最新 MAX_NOTIFY 条推送
+      const news = posts.slice(0, MAX_NOTIFY);
 
       return { news, domain };
     } catch (e) {
