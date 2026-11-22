@@ -64,7 +64,7 @@ function run(lat, lon, placeLabel, ipLine) {
     const res = otd && otd.results;
     const ev = res ? res.map(r => r.elevation) : [];
     const h0 = ev.length ? ev[0] : null;
-    L.push("📍 " + placeLabel + (h0 !== null && h0 !== undefined ? " · 海拔 " + fmt(h0, 0) + "m(SRTM 30m)" : "") + " · " + fmt(lat, 2) + "°N " + fmt(lon, 2) + "°E");
+    L.push("📍 " + placeLabel + (h0 !== null && h0 !== undefined ? " · 海拔 " + fmt(h0, 0) + "m(SRTM 30m)" : "") + " · " + fmt(Math.abs(lat), 2) + "°" + (lat >= 0 ? "N" : "S") + " " + fmt(Math.abs(lon), 2) + "°" + (lon >= 0 ? "E" : "W"));
     if (ipLine) L.push(ipLine);
     if (ev.length >= 9) {
       const g = ev.slice(0, 9);
@@ -180,14 +180,26 @@ function run(lat, lon, placeLabel, ipLine) {
 if (!isNaN(LATP) && !isNaN(LONP)) {
   run(LATP, LONP, "固定坐标", "");
 } else {
-  get("https://ipwho.is/", function (j) {
-    if (j && j.success && j.latitude && j.longitude) {
-      const label = j.city || j.region || "当前位置";
-      const region = [j.region, j.country].filter(Boolean).join(" · ");
-      const ipLine = "🌐 出口IP " + j.ip + (j.connection && j.connection.isp ? " · " + j.connection.isp : "") + (region ? " · " + region : "");
-      run(j.latitude, j.longitude, label, ipLine);
-    } else {
-      done("❌ IP 定位失败：ipwho.is 没有返回位置。\n可在模块参数里填 LAT/LON 固定坐标（如潮州 23.66 / 116.62）。");
+  // 首选 Bilibili 的 IP 定位（国内服务，Surge 规则通常直连 → 得到真实本地 IP 与经纬度，不受代理节点影响）
+  get("https://api.bilibili.com/x/web-interface/zone", function (j) {
+    const dt = j && j.data;
+    if (dt && dt.latitude && dt.longitude) {
+      const label = dt.city || dt.province || "当前位置";
+      const region = [dt.province, dt.country].filter(Boolean).join(" · ");
+      const ipLine = "🌐 本地IP " + dt.addr + (dt.isp ? " · " + dt.isp : "") + (region ? " · " + region : "");
+      run(parseFloat(dt.latitude), parseFloat(dt.longitude), label, ipLine);
+      return;
     }
+    // 兜底：ipwho.is（请求若走代理节点，定位会偏到节点所在地）
+    get("https://ipwho.is/", function (j2) {
+      if (j2 && j2.success && j2.latitude && j2.longitude) {
+        const label = j2.city || j2.region || "当前位置";
+        const region = [j2.region, j2.country].filter(Boolean).join(" · ");
+        const ipLine = "🌐 出口IP " + j2.ip + (j2.connection && j2.connection.isp ? " · " + j2.connection.isp : "") + (region ? " · " + region : "");
+        run(j2.latitude, j2.longitude, label, ipLine);
+      } else {
+        done("❌ IP 定位失败：Bilibili 与 ipwho.is 都没有返回位置。\n可在模块参数里填 LAT/LON 固定坐标（如潮州 23.66 / 116.62）。");
+      }
+    });
   });
 }
