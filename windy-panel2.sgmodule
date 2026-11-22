@@ -1,0 +1,11 @@
+#!name=Windy 天气面板 v8
+#!desc=三源全免费的天气面板：Windy（天气/海洋/洋流/空气质量全图层）+ Open-Meteo（紫外线/太阳辐射/能见度/冰冻高度/积雪深度/海水温度/气溶胶，免Key）+ 中央气象台台风 + 和风官方预警（可选）。启用前在参数表里填好 APIKEY 和城市经纬度。按经纬度定位，任何城市、镇、村都能查。
+#!category=面板
+#!arguments=CITY:"潮州",LAT:"23.66",LON:"116.62",APIKEY:"YOURKEY",MODEL:"gfs",QWHOST:"",QWKEY:""
+#!arguments-desc=CITY:\n显示用的地名，随便写，如 北京、深圳、老家村名，只是标题显示。\nLAT:\n纬度，如北京 39.90。Windy 网站搜到地点后，详情/地址栏里能看到经纬度，第一个是纬度。\nLON:\n经度，如北京 116.40，经纬度填对就能查到镇、村一级的位置。\nAPIKEY:\nWindy 的 Point Forecast API 密钥。电脑打开 api.windy.com 注册，选 Point Forecast API 生成免费 Key 填进来。注意别选成 Map 或 Webcams 的 Key，那两类不能用。\nMODEL:\n预报模式，默认 gfs（全球）。欧洲可用 iconEu，美国可用 namConus，一般不用改。
+
+[Script]
+Windy天气 = type=generic, timeout=60, script-path=https://raw.githubusercontent.com/thebestthing/zhl2012/main/windy-panel-v8.js, argument={{{CITY}}}|{{{LAT}}}|{{{LON}}}|{{{APIKEY}}}|{{{MODEL}}}|{{{QWHOST}}}|{{{QWKEY}}}
+
+[Panel]
+Windy天气 = script-name=Windy天气, title="Windy 天气", content="加载中…", style=info, update-interval=900
