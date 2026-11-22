@@ -1,5 +1,5 @@
 /******************************************
- * Codec 工具箱 · Windows 硬件监控 Surge 面板（详细版）
+ * Codec 工具箱 · Windows 硬件监控 Surge 面板（运维台全量版）
  * 数据来源：工具箱「硬件监控」子站的 /api/snapshot 接口
  * sharecode 与 token 在模块的参数表里填（模块用 {{{SHARECODE}}}/{{{TOKEN}}} 拼出接口地址），
  * 相当于密码：只保存在你本机 Surge 里，不要提交到公开仓库、不要外传。
@@ -72,32 +72,45 @@ if (!API_URL || API_URL.indexOf("XXXX") >= 0 || API_URL.indexOf("YYYY") >= 0) {
         const l = m.latest;
         const lines = [];
 
-        // 在线状态
+        // 在线状态 + 上报延迟
         let ageSec = null;
         if (j.serverTime && m.lastSeen) {
           ageSec = Math.max(0, Math.round((Date.parse(j.serverTime) - Date.parse(m.lastSeen)) / 1000));
         }
-        lines.push(m.online
+        let head = m.online
           ? "🟢 在线" + (ageSec !== null ? " · " + ageSec + " 秒前上报" : "")
-          : "🔴 离线" + (ageSec !== null ? " · 最后上报 " + Math.floor(ageSec / 60) + " 分钟前" : ""));
+          : "🔴 离线" + (ageSec !== null ? " · 最后上报 " + Math.floor(ageSec / 60) + " 分钟前" : "");
+        if (l.reportLatencyMs !== undefined && l.reportLatencyMs !== null) head += " · 延迟 " + l.reportLatencyMs + "ms";
+        lines.push(head);
 
         // CPU
         const cpu = l.cpu || {};
         let cpuLine = "CPU " + shortCpu(cpu.name) + " · " + fmt(cpu.loadPercent, 0) + "%";
         if (cpu.currentClockMHz) cpuLine += " · " + fmt(cpu.currentClockMHz / 1000, 2) + " GHz";
-        if (l.temperatures && l.temperatures.cpuCelsius !== null && l.temperatures.cpuCelsius !== undefined) {
-          cpuLine += " · " + fmt(l.temperatures.cpuCelsius, 0) + "℃";
-        }
         lines.push(cpuLine);
         if (cpu.cores || cpu.processCount) {
-          lines.push("核心 " + (cpu.cores || "--") + "核/" + (cpu.logicalProcessors || "--") + "线程 · 进程 " + (cpu.processCount || "--") + " · 线程 " + (cpu.threadCount || "--"));
+          lines.push("核心 " + (cpu.cores || "--") + "核/" + (cpu.logicalProcessors || "--") + "线程 · 进程 " + (cpu.processCount || "--") + " · 线程 " + (cpu.threadCount || "--") + " · 句柄 " + (cpu.handleCount || "--"));
         }
+
+        // 温度与功耗
+        const t = l.temperatures || {};
+        let tLine = "温度 CPU " + (t.cpuCelsius !== null && t.cpuCelsius !== undefined ? fmt(t.cpuCelsius, 0) + "℃" : "--");
+        tLine += " · GPU " + (t.gpuCelsius !== null && t.gpuCelsius !== undefined ? fmt(t.gpuCelsius, 0) + "℃" : "不可用");
+        if (t.gpuPowerWatts !== null && t.gpuPowerWatts !== undefined) tLine += " · 功耗 " + fmt(t.gpuPowerWatts, 0) + "W";
+        lines.push(tLine);
 
         // 内存
         const mem = l.memory || {};
         let memLine = "内存 " + fmt(mem.usedPercent) + "% · " + fmt(mem.usedGiB) + "/" + fmt(mem.totalGiB) + " GB";
         if (mem.availableGiB !== undefined) memLine += " · 可用 " + fmt(mem.availableGiB) + " GB";
         lines.push(memLine);
+        if (mem.commitUsedGiB !== undefined) {
+          lines.push("提交 " + fmt(mem.commitUsedGiB) + "/" + fmt(mem.commitLimitGiB) + " GB · 缓存 " + fmt(mem.cachedGiB) + " GB");
+        }
+        if ((mem.modules || []).length) {
+          const md = mem.modules[0];
+          lines.push("内存条 " + mem.modules.length + "×" + fmt(md.capacityGiB, 0) + "GB " + (md.manufacturer || "").replace(/\s*Technology$/i, "") + " " + (md.speedMHz || "") + "MHz");
+        }
 
         // 显卡
         const gpu = (l.gpus || []).filter(g => /NVIDIA|AMD|Radeon|Intel/i.test(g.name || ""))[0];
@@ -110,28 +123,34 @@ if (!API_URL || API_URL.indexOf("XXXX") >= 0 || API_URL.indexOf("YYYY") >= 0) {
           }
           lines.push(g);
           if (gpu.currentHorizontalResolution) {
-            lines.push("屏幕 " + gpu.currentHorizontalResolution + "×" + gpu.currentVerticalResolution + (gpu.currentRefreshRate ? " @" + gpu.currentRefreshRate + "Hz" : ""));
+            lines.push("屏幕 " + gpu.currentHorizontalResolution + "×" + gpu.currentVerticalResolution + (gpu.currentRefreshRate ? " @" + gpu.currentRefreshRate + "Hz" : "") + " · 驱动 " + (gpu.driverVersion || "--"));
           }
         }
 
-        // 磁盘占用
+        // 磁盘容量与活动
         (l.disks || []).forEach(dsk => {
           let d = "磁盘 " + dsk.name + " " + fmt(dsk.usedPercent) + "% · 剩 " + fmt(dsk.freeGiB, 2) + " GB";
           if (dsk.freeGiB !== null && dsk.freeGiB !== undefined && dsk.freeGiB < 5) d += " ⚠️ 快满了";
           lines.push(d);
         });
-        // 磁盘活动（取活动率最高的一块）
+        (l.physicalDisks || []).forEach(pd => {
+          lines.push("硬盘 " + String(pd.model || "").slice(0, 26) + " · " + fmt(pd.sizeGiB, 0) + " GB · " + (pd.status || ""));
+        });
         const perfs = (l.diskPerformance || []).slice().sort((a, b) => (b.activePercent || 0) - (a.activePercent || 0));
         if (perfs.length) {
           const p = perfs[0];
           lines.push("磁盘活动 " + fmt(p.activePercent, 0) + "% · 读 " + fmtRate(p.readBytesPerSec) + " · 写 " + fmtRate(p.writeBytesPerSec));
         }
 
-        // 网络
+        // 网络（总速率 + 各网卡）
         const net = l.network || {};
         let netLine = "网络 ↓" + fmt(net.downloadMbps, 2) + " ↑" + fmt(net.uploadMbps, 2) + " Mbps";
         if (net.linkMbps) netLine += " · 链路 " + fmt(net.linkMbps, 0) + " Mbps";
         lines.push(netLine);
+        (net.adapters || []).forEach(a => {
+          const nm = String(a.name || "").replace(/\(R\)|\[R\]/g, "").replace(/\s+/g, " ").trim().slice(0, 30);
+          lines.push("网卡 " + nm + " ↓" + fmtRate(a.downloadBytesPerSec) + " ↑" + fmtRate(a.uploadBytesPerSec));
+        });
 
         // 电池
         if (l.battery && l.battery.present) {
@@ -141,18 +160,28 @@ if (!API_URL || API_URL.indexOf("XXXX") >= 0 || API_URL.indexOf("YYYY") >= 0) {
         // 系统
         const sys = l.system || {};
         let sysLine = "系统 " + (sys.os || "").replace(/^Microsoft\s*/i, "");
-        if (sys.model) sysLine += " · " + sys.model;
+        if (sys.build) sysLine += " build " + sys.build;
         lines.push(sysLine);
-        if (sys.uptimeSeconds !== undefined) lines.push("已运行 " + fmtUptime(sys.uptimeSeconds));
+        if (sys.model || sys.uptimeSeconds !== undefined) {
+          lines.push("机型 " + (sys.model || "--") + (sys.uptimeSeconds !== undefined ? " · 已运行 " + fmtUptime(sys.uptimeSeconds) : ""));
+        }
 
-        // 进程 Top
+        // 进程 CPU TOP10
         const tops = l.topProcesses || [];
         if (tops.length) {
-          const byCpu = tops.slice(0, 3).map(p => p.name + " " + fmt(p.cpuPercent) + "%").join(" · ");
-          lines.push("吃CPU: " + byCpu);
-          const byMem = tops.slice().sort((a, b) => (b.memoryBytes || 0) - (a.memoryBytes || 0)).slice(0, 2)
-            .map(p => p.name + " " + fmtMem(p.memoryBytes)).join(" · ");
-          lines.push("吃内存: " + byMem);
+          lines.push("进程CPU TOP10:");
+          tops.slice(0, 10).forEach((p, i) => {
+            lines.push((i + 1) + ". " + p.name + " " + fmt(p.cpuPercent) + "% · " + fmtMem(p.memoryBytes));
+          });
+        }
+
+        // 设备清单摘要
+        const inv = l.deviceInventory || {};
+        if (inv.totalCount) {
+          lines.push("设备清单 共 " + inv.totalCount + " 台 · 异常 " + (inv.errorCount || 0) + " 台");
+        }
+        if (l.collectorNotes && l.collectorNotes["gpu.nvml"]) {
+          lines.push("注: GPU 温度/功耗取不到（nvidia-smi 失败）");
         }
 
         done(lines.join("\n"), "🖥 " + (l.machineName || "Windows") + " 硬件监控");
