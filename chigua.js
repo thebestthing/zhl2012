@@ -1,9 +1,10 @@
 /******************************************
- * 黑料不打烊 + 51吃瓜 定时监控推送（带封面图版 v6）
+ * 黑料不打烊 + 51吃瓜 定时监控推送（带封面图版 v7）
  * 更新: 2026-11-22
  * 适用: Surge（iOS 5.11.0+ 带图通知）/ Loon / Quantumult X
  * 说明:
- *  1. 解析首页文章卡片，提取每篇的封面图
+ *  1. 解析分类页文章卡片，提取每篇的封面图（v7 起：51吃瓜抓「今日吃瓜」/category/wpcz/，
+ *     黑料不打烊抓「今日看料」/category/24hcg/；首页混有置顶旧帖，不用首页）
  *  2. 两站图床的图片是 AES-128-CBC 加密的（站点前端 JS 解密后才显示），
  *     直接拿原图 URL 当通知附件，系统解不开，所以永远不显示。
  *     本脚本内置纯 JS AES 解密：下载 → 解密 → base64 附件推送。
@@ -21,7 +22,7 @@ const sites = [
       "https://dbdy3.com",
       "https://hlbdy1.com"
     ],
-    path: "/",
+    path: "/category/24hcg/",
     key: "hlbdy_seen_ids"
   },
   {
@@ -32,7 +33,7 @@ const sites = [
       "https://51cge29.com",
       "https://chigua.com"
     ],
-    path: "/",
+    path: "/category/wpcz/",
     key: "51cg_seen_ids"
   }
 ];
