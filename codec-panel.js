@@ -91,6 +91,16 @@ if (!API_URL || API_URL.indexOf("XXXX") >= 0 || API_URL.indexOf("YYYY") >= 0) {
         if (cpu.cores || cpu.processCount) {
           lines.push("核心 " + (cpu.cores || "--") + "核/" + (cpu.logicalProcessors || "--") + "线程 · 进程 " + (cpu.processCount || "--") + " · 线程 " + (cpu.threadCount || "--") + " · 句柄 " + (cpu.handleCount || "--"));
         }
+        if (cpu.perCoreLoad) {
+          const cores = Object.keys(cpu.perCoreLoad).sort((a, b) => a - b).map(k => fmt(cpu.perCoreLoad[k], 0));
+          if (cores.length) lines.push("每核 " + cores.join(" "));
+        }
+        if (cpu.baseClockMHz || cpu.l3CacheKB) {
+          let cl = "频率 基准 " + fmt((cpu.baseClockMHz || 0) / 1000, 2) + " · 最高 " + fmt((cpu.maxClockMHz || 0) / 1000, 2) + " GHz";
+          if (cpu.l2CacheKB) cl += " · L2 " + fmt(cpu.l2CacheKB / 1024) + "MB";
+          if (cpu.l3CacheKB) cl += " · L3 " + fmt(cpu.l3CacheKB / 1024, 0) + "MB";
+          lines.push(cl);
+        }
 
         // 温度与功耗
         const t = l.temperatures || {};
@@ -105,7 +115,7 @@ if (!API_URL || API_URL.indexOf("XXXX") >= 0 || API_URL.indexOf("YYYY") >= 0) {
         if (mem.availableGiB !== undefined) memLine += " · 可用 " + fmt(mem.availableGiB) + " GB";
         lines.push(memLine);
         if (mem.commitUsedGiB !== undefined) {
-          lines.push("提交 " + fmt(mem.commitUsedGiB) + "/" + fmt(mem.commitLimitGiB) + " GB · 缓存 " + fmt(mem.cachedGiB) + " GB");
+          lines.push("提交 " + fmt(mem.commitUsedGiB) + "/" + fmt(mem.commitLimitGiB) + " GB · 缓存 " + fmt(mem.cachedGiB) + " GB · 池 分页 " + fmt(mem.pagedPoolGiB, 2) + "/非分页 " + fmt(mem.nonPagedPoolGiB, 2));
         }
         if ((mem.modules || []).length) {
           const md = mem.modules[0];
@@ -158,7 +168,9 @@ if (!API_URL || API_URL.indexOf("XXXX") >= 0 || API_URL.indexOf("YYYY") >= 0) {
 
         // 电池
         if (l.battery && l.battery.present) {
-          lines.push("电池 " + fmt(l.battery.percent, 0) + "% · " + (l.battery.statusText || ""));
+          let bl = "电池 " + fmt(l.battery.percent, 0) + "% · " + (l.battery.statusText || "");
+          if (!l.battery.onAc && l.battery.estimatedMinutes) bl += " · 约剩 " + Math.floor(l.battery.estimatedMinutes / 60) + "小时" + (l.battery.estimatedMinutes % 60) + "分";
+          lines.push(bl);
         }
 
         // 系统
@@ -168,6 +180,9 @@ if (!API_URL || API_URL.indexOf("XXXX") >= 0 || API_URL.indexOf("YYYY") >= 0) {
         lines.push(sysLine);
         if (sys.model || sys.uptimeSeconds !== undefined) {
           lines.push("机型 " + (sys.model || "--") + (sys.uptimeSeconds !== undefined ? " · 已运行 " + fmtUptime(sys.uptimeSeconds) : ""));
+        }
+        if (sys.manufacturer || sys.baseboard || sys.biosVersion) {
+          lines.push("档案 " + (sys.manufacturer || "") + " · 主板 " + (sys.baseboard || "--") + " · BIOS " + (sys.biosVersion || "--") + (sys.architecture ? " · " + sys.architecture : ""));
         }
 
         // 进程 CPU TOP10
