@@ -1,0 +1,10 @@
+#!name=本地地质面板 v3
+#!desc=专业详细版（无地震）：基岩地层/年代、SRTM地形起伏与坡度坡向、表层土壤理化、周边古生物化石记录。参数 LAT/LON 留空=IP自动定位（走代理节点时定位会偏，请填固定坐标）。数据源 Macrostrat / OpenTopoData / SoilGrids / PBDB / ipwho.is，全免费无 Key。
+#!arguments=LAT:"",LON:""
+#!arguments-desc=LAT:纬度，留空=按出口IP自动定位（例 潮州 23.66）\nLON:经度，留空=自动定位（例 116.62）
+
+[Panel]
+本地地质 = script-name=本地地质, title="本地地质", style=info, update-interval=86400
+
+[Script]
+本地地质 = type=generic, timeout=60, script-path=https://raw.githubusercontent.com/thebestthing/zhl2012/main/geo-panel-v3.js, argument={{{LAT}}}|{{{LON}}}
