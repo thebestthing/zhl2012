@@ -1,7 +1,7 @@
 /******************************************
  * Codec 工具箱 · Windows 硬件监控 Surge 面板
  * 数据来源：工具箱「硬件监控」子站的 /api/snapshot 接口
- * 接口地址（含 sharecode 与 token）在模块的脚本参数 argument 里填，
+ * sharecode 与 token 在模块的参数表里填（模块用 %SHARECODE%/%TOKEN% 拼出接口地址），
  * 相当于密码：只保存在你本机 Surge 里，不要提交到公开仓库、不要外传。
  ******************************************/
 
@@ -40,8 +40,8 @@ function fmtUptime(sec) {
   return (d > 0 ? d + "天" : "") + h + "小时" + (d === 0 ? mi + "分" : "");
 }
 
-if (!API_URL || API_URL.indexOf("XXXX") >= 0) {
-  done("⚠️ 还没配置监控接口地址\n到 Surge 的模块设置里，把「Codec硬件监控」脚本的参数改成你的监控接口完整地址（域名后加 /api/snapshot，带上 sharecode 和 token）。");
+if (!API_URL || API_URL.indexOf("XXXX") >= 0 || API_URL.indexOf("YYYY") >= 0) {
+  done("⚠️ 还没填参数\n打开 Surge 里这个模块的详情页，在参数表里填上 sharecode 和 token（在你的硬件监控页面地址栏里，?sharecode= 后面和 &token= 后面那两串）。");
 } else {
   $httpClient.get(
     { url: API_URL, timeout: 12, headers: { "User-Agent": "Surge" } },
