@@ -5,7 +5,7 @@
 #!arguments-desc=CITY:\n显示用的地名，随便写，如 北京、深圳、老家村名，只是标题显示。\nLAT:\n纬度，如北京 39.90。Windy 网站搜到地点后，详情/地址栏里能看到经纬度，第一个是纬度。\nLON:\n经度，如北京 116.40，经纬度填对就能查到镇、村一级的位置。\nAPIKEY:\nWindy 的 Point Forecast API 密钥。电脑打开 api.windy.com 注册，选 Point Forecast API 生成免费 Key 填进来。注意别选成 Map 或 Webcams 的 Key，那两类不能用。\nMODEL:\n预报模式，默认 gfs（全球）。欧洲可用 iconEu，美国可用 namConus，一般不用改。
 
 [Script]
-Windy天气 = type=generic, timeout=60, script-path=https://raw.githubusercontent.com/thebestthing/zhl2012/main/windy-panel-v6.js, argument={{{CITY}}}|{{{LAT}}}|{{{LON}}}|{{{APIKEY}}}|{{{MODEL}}}|{{{QWHOST}}}|{{{QWKEY}}}
+Windy天气 = type=generic, timeout=60, script-path=https://raw.githubusercontent.com/thebestthing/zhl2012/main/windy-panel-v7.js, argument={{{CITY}}}|{{{LAT}}}|{{{LON}}}|{{{APIKEY}}}|{{{MODEL}}}|{{{QWHOST}}}|{{{QWKEY}}}
 
 [Panel]
 Windy天气 = script-name=Windy天气, title="Windy 天气", content="加载中…", style=info, update-interval=900
