@@ -51,6 +51,9 @@ if (!API_URL || API_URL.indexOf("XXXX") >= 0 || API_URL.indexOf("YYYY") >= 0) {
       }
       try {
         const j = JSON.parse(data);
+        if (j.error) {
+          return done("❌ 接口拒绝：" + j.error + "\n多半是 TOKEN 没填对：到监控页地址栏里复制 &token= 后面那整串，粘贴到模块参数里，不要手打、不要从聊天截图里抄。");
+        }
         const m = (j.machines || [])[0];
         if (!m || !m.latest) return done("接口里暂时没有机器数据。");
         const l = m.latest;
