@@ -1,5 +1,5 @@
 /******************************************
- * 黑料不打烊 + 51吃瓜 定时监控推送（带封面图版 v5）
+ * 黑料不打烊 + 51吃瓜 定时监控推送（带封面图版 v6）
  * 更新: 2026-11-22
  * 适用: Surge（iOS 5.11.0+ 带图通知）/ Loon / Quantumult X
  * 说明:
@@ -111,7 +111,11 @@ function parsePosts(html, domain) {
     if (seen.has(id)) continue;
 
     const start = Math.max(0, idx - 900);
-    const end = i + 1 < cards.length ? cards[i + 1].idx : idx + 6000;
+    let end = i + 1 < cards.length ? cards[i + 1].idx : idx + 6000;
+    // 卡片之间夹着广告位（<article class="ad-item">），窗口必须在本卡片 </article> 处截断，
+    // 否则会抓到下一张广告卡的图片（v5 实测把开元棋牌广告图当封面推了出去）
+    const closeIdx = html.indexOf("</article>", idx);
+    if (closeIdx > idx) end = Math.min(end, closeIdx + "</article>".length);
     const win = html.slice(start, Math.min(end, idx + 6000));
 
     // 原文链接（卡片前的 <a href="/archives/xx">）
@@ -156,6 +160,7 @@ function parsePosts(html, domain) {
 function pickCardImage(win) {
   const patterns = [
     /itemprop="image"\s+content="(https?:[^"]+)"/i,
+    /z-bg-loader-url="(https?:[^"]+)"/i,
     /x-bg-loader-url="(https?:[^"]+)"/i,
     /z-image-loader-url="(https?:[^"]+)"/i,
     /<img[^>]+src="(https?:[^"]+\.(?:jpe?g|png|webp)[^"]*)"/i
