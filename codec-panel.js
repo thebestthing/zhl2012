@@ -112,16 +112,20 @@ if (!API_URL || API_URL.indexOf("XXXX") >= 0 || API_URL.indexOf("YYYY") >= 0) {
           lines.push("内存条 " + mem.modules.length + "×" + fmt(md.capacityGiB, 0) + "GB " + (md.manufacturer || "").replace(/\s*Technology$/i, "") + " " + (md.speedMHz || "") + "MHz");
         }
 
-        // 显卡
+        // 显卡（名称 / 专用+共享显存 / 全部引擎）
         const gpu = (l.gpus || []).filter(g => /NVIDIA|AMD|Radeon|Intel/i.test(g.name || ""))[0];
         if (gpu) {
-          let g = "显卡 " + shortGpu(gpu.name);
-          const e3d = (l.gpuEngines || []).find(e => e.engine === "3D");
-          if (e3d) g += " · 3D " + fmt(e3d.percent, 0) + "%";
+          lines.push("显卡 " + shortGpu(gpu.name));
           if (l.gpuMemory && l.gpuMemory.dedicatedLimitBytes) {
-            g += " · 显存 " + fmt(l.gpuMemory.dedicatedUsedBytes / 1073741824) + "/" + fmt(l.gpuMemory.dedicatedLimitBytes / 1073741824, 0) + " GB";
+            let vm = "显存 专用 " + fmt(l.gpuMemory.dedicatedUsedBytes / 1073741824) + "/" + fmt(l.gpuMemory.dedicatedLimitBytes / 1073741824, 0) + " GB";
+            if (l.gpuMemory.sharedLimitBytes) {
+              vm += " · 共享 " + fmtMem(l.gpuMemory.sharedUsedBytes) + "/" + fmt(l.gpuMemory.sharedLimitBytes / 1073741824) + " GB";
+            }
+            lines.push(vm);
           }
-          lines.push(g);
+          if ((l.gpuEngines || []).length) {
+            lines.push("引擎 " + l.gpuEngines.map(e => e.engine + " " + fmt(e.percent, 0) + "%").join(" · "));
+          }
           if (gpu.currentHorizontalResolution) {
             lines.push("屏幕 " + gpu.currentHorizontalResolution + "×" + gpu.currentVerticalResolution + (gpu.currentRefreshRate ? " @" + gpu.currentRefreshRate + "Hz" : "") + " · 驱动 " + (gpu.driverVersion || "--"));
           }
