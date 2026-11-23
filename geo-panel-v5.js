@@ -26,6 +26,20 @@ function haversine(lat1, lon1, lat2, lon2) {
   const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * rad) * Math.cos(lat2 * rad) * Math.sin(dLon / 2) ** 2;
   return 2 * R * Math.asin(Math.sqrt(a));
 }
+// 内置快照：2026-11-23 在潮州（23.67/116.64，取样点约9.2km外）实测渲染的土壤结果。
+// SoilGrids 接口不可用且本地无缓存时兜底显示，并注明是快照；接口恢复后自动切回实时数据。
+const BUILTIN_SOIL = {
+  "geo_soil_237_1166": [
+    "🌱 土壤取样点: 中心像素无数据，取约 9.2km 外有效像素",
+    "🌱 表层土壤(0-5cm): 黏粒 23% · 砂粒 44% · 粉粒 34% · pH 5.6",
+    "🧪 土壤理化: 有机碳 40.5g/kg · 全氮 3.1g/kg · 容重 1.17g/cm³ · CEC 18.8cmol/kg · 粗碎屑 11%",
+    "💧 土壤水分: 田间持水量 34.8% · 凋萎含水量 14.4% · 有效水 20.4%",
+    "🪵 有机碳储量(0-30cm): 46 t/ha",
+    "📊 剖面黏粒(0→60cm): 23→21→23→29%",
+    "📊 剖面pH(0→60cm): 5.6→5.6→5.6→5.6",
+    "📊 剖面有机碳(0→60cm): 40.5→19.0→11.3→7.4 g/kg"
+  ]
+};
 const AGE_CN = { "Quaternary": "第四纪", "Neogene": "新近纪", "Paleogene": "古近纪", "Cretaceous": "白垩纪", "Jurassic": "侏罗纪", "Triassic": "三叠纪", "Permian": "二叠纪", "Carboniferous": "石炭纪", "Devonian": "泥盆纪", "Silurian": "志留纪", "Ordovician": "奥陶纪", "Cambrian": "寒武纪", "Pliocene": "上新世", "Miocene": "中新世", "Oligocene": "渐新世", "Eocene": "始新世", "Paleocene": "古新世", "Pleistocene": "更新世", "Holocene": "全新世", "Cenozoic": "新生代", "Mesozoic": "中生代", "Paleozoic": "古生代", "Precambrian": "前寒武纪" };
 function ageCN(en) { return AGE_CN[en] ? AGE_CN[en] + "(" + en + ")" : en; }
 function lithCN(s) {
@@ -57,7 +71,7 @@ function run(lat, lon, placeLabel, ipLine) {
                   "&depth=0-5cm&depth=5-15cm&depth=15-30cm&depth=30-60cm&depth=0-30cm&value=mean";
   const pbdbUrl = "https://paleobiodb.org/data1.2/occs/list.json?lngmin=" + (lon - 1.5) + "&lngmax=" + (lon + 1.5) +
                   "&latmin=" + (lat - 1.5) + "&latmax=" + (lat + 1.5) + "&limit=200&show=coords,time,class";
-  let pending = 4, otd = null, macro = null, soil = null, pbdb = null, soilOffsetKm = 0, soilFromCache = false;
+  let pending = 4, otd = null, macro = null, soil = null, pbdb = null, soilOffsetKm = 0, soilFromCache = false, builtinSoilLines = null;
   function fin() {
     if (--pending !== 0) return;
     const L = [];
@@ -97,6 +111,10 @@ function run(lat, lon, placeLabel, ipLine) {
     if (soil && soil.nodata) L.push("🌱 土壤: 中心周边约10km内 SoilGrids 均为无数据像素（水域/建成区）");
     if (soil && soil.apierr) L.push("🌱 土壤: SoilGrids 接口超时无响应（探针已自动重试一轮），稍后刷新再试");
     if (soilFromCache) L.push("🌱 土壤: 接口暂不可用，显示同区域上次成功数据（土壤不随天变）");
+    if (builtinSoilLines) {
+      L.push("🌱 土壤: SoilGrids 暂不可用，显示 2026-11-23 实测快照");
+      builtinSoilLines.forEach(function (l) { L.push(l); });
+    }
     const layers = soil && soil.properties && soil.properties.layers;
     if (layers) {
       if (soilOffsetKm > 0.3) L.push("🌱 土壤取样点: 中心像素无数据，取约 " + fmt(soilOffsetKm, 1) + "km 外有效像素");
@@ -170,6 +188,8 @@ function run(lat, lon, placeLabel, ipLine) {
       try { cached = JSON.parse($persistentStore.read(cacheKey) || "null"); } catch (e) {}
       if (cached && cached.soil && cached.soil.properties) {
         soil = cached.soil; soilOffsetKm = cached.off || 0; soilFromCache = true;
+      } else if (BUILTIN_SOIL[cacheKey]) {
+        builtinSoilLines = BUILTIN_SOIL[cacheKey]; soil = { builtin: true };
       } else {
         soil = responded ? { nodata: true } : { apierr: true };
       }
