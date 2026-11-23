@@ -1,5 +1,5 @@
 // 本地地质面板 v5（Surge Panel）—— 专业详细版（无地震）· 土壤源修复
-// IP 定位（ipwho.is）后查：
+// IP 定位（Bilibili zone：国内直连得真实本地 IP；ipwho.is 兜底）后查：
 //   基岩地层/年代/岩性：Macrostrat（加拿大地调局全球地质图）
 //   地形：OpenTopoData SRTM 30m —— 精确海拔、周边起伏、坡度/坡向
 //   表层土壤：SoilGrids（黏粒/砂粒/粉粒/pH/有机碳/容重/全氮，取不到自动隐藏）
@@ -17,7 +17,7 @@ function get(url, cb) {
   $httpClient.get({ url: url, timeout: TIMEOUT, headers: { "User-Agent": "Mozilla/5.0" } }, function (err, resp, data) {
     let json = null;
     try { if (!err && data) json = JSON.parse(data); } catch (e) { /* 忽略 */ }
-    cb(json);
+    cb(json, json !== null);
   });
 }
 function haversine(lat1, lon1, lat2, lon2) {
@@ -57,7 +57,7 @@ function run(lat, lon, placeLabel, ipLine) {
                   "&depth=0-5cm&depth=5-15cm&depth=15-30cm&depth=30-60cm&depth=0-30cm&value=mean";
   const pbdbUrl = "https://paleobiodb.org/data1.2/occs/list.json?lngmin=" + (lon - 1.5) + "&lngmax=" + (lon + 1.5) +
                   "&latmin=" + (lat - 1.5) + "&latmax=" + (lat + 1.5) + "&limit=200&show=coords,time,class";
-  let pending = 4, otd = null, macro = null, soil = null, pbdb = null, soilOffsetKm = 0;
+  let pending = 4, otd = null, macro = null, soil = null, pbdb = null, soilOffsetKm = 0, soilFromCache = false;
   function fin() {
     if (--pending !== 0) return;
     const L = [];
@@ -95,6 +95,8 @@ function run(lat, lon, placeLabel, ipLine) {
       L.push("🪨 基岩: 该位置无地质图覆盖数据");
     }
     if (soil && soil.nodata) L.push("🌱 土壤: 中心周边约10km内 SoilGrids 均为无数据像素（水域/建成区）");
+    if (soil && soil.apierr) L.push("🌱 土壤: SoilGrids 接口超时无响应（探针已自动重试一轮），稍后刷新再试");
+    if (soilFromCache) L.push("🌱 土壤: 接口暂不可用，显示同区域上次成功数据（土壤不随天变）");
     const layers = soil && soil.properties && soil.properties.layers;
     if (layers) {
       if (soilOffsetKm > 0.3) L.push("🌱 土壤取样点: 中心像素无数据，取约 " + fmt(soilOffsetKm, 1) + "km 外有效像素");
@@ -153,26 +155,62 @@ function run(lat, lon, placeLabel, ipLine) {
   }
   get(otdUrl, function (j) { otd = j; fin(); });
   get(macroUrl, function (j) { macro = j; fin(); });
-  // 土壤：先轻量探测中心及周边 4 点（城市/水域像素常无数据），找到有数据的点再拉全量
+  // 土壤：并行探测中心及周边点（城市/水域像素常无数据）；请求失败（超时）的点自动再重试一轮；
+  // 两轮都无果时用同区域上次成功结果兜底（土壤不随天变），并区分「真无数据」与「接口无响应」。
   (function () {
     const offs = [[0, 0],
       [0.02, 0], [-0.02, 0], [0, 0.02], [0, -0.02],
       [0.05, 0], [-0.05, 0], [0, 0.05], [0, -0.05],
       [0.09, 0], [-0.09, 0], [0, 0.09], [0, -0.09]];
-    let probePending = offs.length, chosen = null;
-    offs.forEach(function (o, idx) {
-      const pla = lat + o[0], plo = lon + o[1];
-      get(soilBase + "?lon=" + plo + "&lat=" + pla + "&property=clay&depth=0-5cm&value=mean", function (j) {
-        const ly = j && j.properties && j.properties.layers && j.properties.layers[0];
-        const mean = ly && ly.depths && ly.depths[0] && ly.depths[0].values ? ly.depths[0].values.mean : null;
-        if (mean !== null && mean !== undefined && (chosen === null || idx < chosen.idx)) chosen = { idx: idx, lat: pla, lon: plo };
-        if (--probePending === 0) {
-          if (chosen === null) { soil = { nodata: true }; fin(); return; }
-          soilOffsetKm = chosen.idx === 0 ? 0 : haversine(lat, lon, chosen.lat, chosen.lon);
-          get(soilBase + "?lon=" + chosen.lon + "&lat=" + chosen.lat + soilFull, function (j) { soil = j; fin(); });
-        }
+    const cacheKey = "geo_soil_" + Math.round(lat * 10) + "_" + Math.round(lon * 10);
+    const probeOk = {};
+    let chosen = null, responded = false, settled = false;
+    function useCacheOrFail() {
+      let cached = null;
+      try { cached = JSON.parse($persistentStore.read(cacheKey) || "null"); } catch (e) {}
+      if (cached && cached.soil && cached.soil.properties) {
+        soil = cached.soil; soilOffsetKm = cached.off || 0; soilFromCache = true;
+      } else {
+        soil = responded ? { nodata: true } : { apierr: true };
+      }
+      fin();
+    }
+    function launch(idxs, isRetry) {
+      let pendingP = idxs.length;
+      idxs.forEach(function (idx) {
+        const pla = lat + offs[idx][0], plo = lon + offs[idx][1];
+        get(soilBase + "?lon=" + plo + "&lat=" + pla + "&property=clay&depth=0-5cm&value=mean", function (j, ok) {
+          if (ok) {
+            probeOk[idx] = true; responded = true;
+            const ly = j && j.properties && j.properties.layers && j.properties.layers[0];
+            const mean = ly && ly.depths && ly.depths[0] && ly.depths[0].values ? ly.depths[0].values.mean : null;
+            if (mean !== null && mean !== undefined && (chosen === null || idx < chosen.idx)) chosen = { idx: idx, lat: pla, lon: plo };
+          }
+          if (--pendingP === 0 && !settled) {
+            if (chosen !== null) {
+              settled = true;
+              soilOffsetKm = chosen.idx === 0 ? 0 : haversine(lat, lon, chosen.lat, chosen.lon);
+              get(soilBase + "?lon=" + chosen.lon + "&lat=" + chosen.lat + soilFull, function (j2, ok2) {
+                if (ok2 && j2 && j2.properties) {
+                  soil = j2;
+                  try { $persistentStore.write(JSON.stringify({ soil: j2, off: soilOffsetKm }), cacheKey); } catch (e) {}
+                  fin();
+                } else {
+                  useCacheOrFail();
+                }
+              });
+            } else if (!isRetry) {
+              const failed = idxs.filter(function (i) { return !probeOk[i]; });
+              if (failed.length) { launch(failed, true); return; }
+              settled = true; useCacheOrFail();
+            } else {
+              settled = true; useCacheOrFail();
+            }
+          }
+        });
       });
-    });
+    }
+    launch(offs.map(function (_, i) { return i; }), false);
   })();
   get(pbdbUrl, function (j) { pbdb = j; fin(); });
 }
