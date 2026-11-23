@@ -2,7 +2,7 @@
 // IP 定位（Bilibili zone：国内直连得真实本地 IP；ipwho.is 兜底）后查：
 //   基岩地层/年代/岩性：Macrostrat（加拿大地调局全球地质图）
 //   地形：OpenTopoData SRTM 30m —— 精确海拔、周边起伏、坡度/坡向
-//   表层土壤：SoilGrids（黏粒/砂粒/粉粒/pH/有机碳/容重/全氮，取不到自动隐藏）
+//   表层土壤：SoilGrids（WMS点查询主源/REST备选；黏粒/砂粒/粉粒/pH/有机碳/容重/全氮，取不到自动隐藏）
 //   古生物：PBDB 古生物数据库 —— 周边化石记录数与最近一条
 // 参数（| 分隔）：LAT|LON —— 留空=IP自动定位；走代理节点时定位会偏，填固定坐标最准。
 
@@ -18,6 +18,11 @@ function get(url, cb) {
     let json = null;
     try { if (!err && data) json = JSON.parse(data); } catch (e) { /* 忽略 */ }
     cb(json, json !== null);
+  });
+}
+function getText(url, cb) {
+  $httpClient.get({ url: url, timeout: TIMEOUT, headers: { "User-Agent": "Mozilla/5.0" } }, function (err, resp, data) {
+    cb(!err && data ? data : null, !err && !!data);
   });
 }
 function haversine(lat1, lon1, lat2, lon2) {
@@ -173,9 +178,9 @@ function run(lat, lon, placeLabel, ipLine) {
   }
   get(otdUrl, function (j) { otd = j; fin(); });
   get(macroUrl, function (j) { macro = j; fin(); });
-  // 土壤：并行探测中心及周边点（城市/水域像素常无数据）；请求失败（超时）的点自动再重试一轮；
+  // 土壤：REST 备选流程（WMS 主源失败时才走）：并行探测中心及周边点，请求失败（超时）的点自动再重试一轮；
   // 两轮都无果时用同区域上次成功结果兜底（土壤不随天变），并区分「真无数据」与「接口无响应」。
-  (function () {
+  function restSoil() {
     const offs = [[0, 0],
       [0.02, 0], [-0.02, 0], [0, 0.02], [0, -0.02],
       [0.05, 0], [-0.05, 0], [0, 0.05], [0, -0.05],
@@ -231,6 +236,41 @@ function run(lat, lon, placeLabel, ipLine) {
       });
     }
     launch(offs.map(function (_, i) { return i; }), false);
+  }
+
+  // 土壤主源：ISRIC MapServer WMS 点查询（dev-maps.isric.org），约1秒/次，比 REST 接口稳得多。
+  // 21 次小查询并行：表层11项 + 碳储量(0-30cm) + 剖面9项；结果组装成与 REST 相同结构，渲染层不改。
+  // WMS 为重投影采样：REST 的无数据像素在这里通常也有值，故不再探针；整体失败才回退 REST 流程。
+  (function wmsSoil() {
+    const jobs = [];
+    ["clay", "sand", "silt", "phh2o", "soc", "nitrogen", "bdod", "cec", "cfvo", "wv0033", "wv1500"].forEach(function (p) { jobs.push([p, "0-5cm"]); });
+    jobs.push(["ocs", "0-30cm"]);
+    ["5-15cm", "15-30cm", "30-60cm"].forEach(function (d) { ["clay", "phh2o", "soc"].forEach(function (p) { jobs.push([p, d]); }); });
+    const bbox = fmt(lat - 0.05, 5) + "," + fmt(lon - 0.05, 5) + "," + fmt(lat + 0.05, 5) + "," + fmt(lon + 0.05, 5);
+    const got = {};
+    let pendingW = jobs.length, anyOk = false;
+    jobs.forEach(function (job) {
+      const prop = job[0], dep = job[1], layer = prop + "_" + dep + "_mean";
+      const url = "https://dev-maps.isric.org/mapserv/" + prop + "?service=WMS&version=1.3.0&request=GetFeatureInfo&layers=" + layer + "&styles=&query_layers=" + layer + "&crs=EPSG:4326&bbox=" + bbox + "&width=101&height=101&i=50&j=50&info_format=text/html&feature_count=1";
+      getText(url, function (txt, ok) {
+        if (ok && txt) {
+          const m = txt.match(/<span id="value">\s*(-?\d+(?:\.\d+)?)\s*<\/span>/);
+          if (m) { const v = parseFloat(m[1]); if (v > -1000) { (got[prop] = got[prop] || {})[dep] = v; anyOk = true; } }
+        }
+        if (--pendingW === 0) {
+          if (anyOk && got.clay && got.clay["0-5cm"] !== undefined) {
+            const layers = Object.keys(got).map(function (p) {
+              return { name: p, depths: Object.keys(got[p]).map(function (d) { return { label: d, values: { mean: got[p][d] } }; }) };
+            });
+            soil = { properties: { layers: layers } };
+            try { $persistentStore.write(JSON.stringify({ soil: soil, off: 0 }), "geo_soil_" + Math.round(lat * 10) + "_" + Math.round(lon * 10)); } catch (e) {}
+            fin();
+          } else {
+            restSoil();
+          }
+        }
+      });
+    });
   })();
   get(pbdbUrl, function (j) { pbdb = j; fin(); });
 }
