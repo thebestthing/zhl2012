@@ -227,7 +227,7 @@ if (!APIKEY || APIKEY === "YOURKEY") {
   pending += ((QWHOST && QWKEY) ? 5 : 4) + 8;
 
   // Open-Meteo 预报：紫外线/太阳辐射/能见度/冰冻高度/积雪深度
-  $httpClient.get({ url: "https://api.open-meteo.com/v1/forecast?latitude=" + LAT + "&longitude=" + LON + "&hourly=uv_index,shortwave_radiation,visibility,freezing_level_height,snow_depth,apparent_temperature,wet_bulb_temperature_2m&forecast_days=2&timeformat=unixtime", timeout: 15 }, function (err, resp, data) {
+  $httpClient.get({ url: "https://api.open-meteo.com/v1/forecast?latitude=" + LAT + "&longitude=" + LON + "&hourly=uv_index,shortwave_radiation,visibility,freezing_level_height,snow_depth,apparent_temperature,wet_bulb_temperature_2m&daily=precipitation_sum&timezone=auto&forecast_days=2&timeformat=unixtime", timeout: 15 }, function (err, resp, data) {
     try { results.om = (!err && data) ? JSON.parse(data) : null; } catch (e) { results.om = null; }
     extraDone();
   });
@@ -343,6 +343,13 @@ if (!APIKEY || APIKEY === "YOURKEY") {
     const ePm1 = ev(ER.pm1), eTpw = ev(ER.tpw), eTcw = ev(ER.tcw), eDuex = ev(ER.duex),
           eCo2 = ev(ER.co2), eSuex = ev(ER.suex), eOmaod = ev(ER.omaod), eSsta = ev(ER.ssta);
     const wbT = omHv("wet_bulb_temperature_2m");
+    // 今日累计降水（Open-Meteo 多模式融合口径）：补“今天到底下没下雨”——时次预报值回答不了这个问题
+    let omDayPrecip = null;
+    if (results.om && results.om.daily && results.om.daily.time && results.om.daily.precipitation_sum) {
+      const dts = results.om.daily.time, nowS2 = Date.now() / 1000;
+      for (let i = 0; i < dts.length; i++) { if (dts[i] <= nowS2 && nowS2 < dts[i] + 86400) { omDayPrecip = results.om.daily.precipitation_sum[i]; break; } }
+      if (omDayPrecip === null && dts.length) omDayPrecip = results.om.daily.precipitation_sum[0];
+    }
 
     // 气温（一行）
     const temp = toC(get(w, "temp-surface", idx));
@@ -399,7 +406,7 @@ if (!APIKEY || APIKEY === "YOURKEY") {
     // 降水（一行）
     const precip = get(w, "past3hprecip-surface", idx), snow = get(w, "past3hsnowprecip-surface", idx), conv = get(w, "past3hconvprecip-surface", idx);
     const cape = get(w, "cape-surface", idx), ptype = get(w, "ptype-surface", idx);
-    L.push("🌧️ 降水 " + fmt(precip !== null ? precip * 1000 : null) + "mm · 雪 " + fmt(snow !== null ? snow * 1000 : null) + "mm · 对流 " + fmt(conv !== null ? conv * 1000 : null) + "mm · " + (ptype !== null && PTYPE[ptype] !== undefined ? PTYPE[ptype] : "--") + (cape !== null ? " · CAPE " + fmt(cape, 0) : "") + (eTpw !== null ? " · 水汽 " + fmt(eTpw, 1) + "kg/m²" : "") + (eTcw !== null && eTcw > 0.005 ? " · 云水 " + fmt(eTcw, 2) : ""));
+    L.push("🌧️ 降水 " + fmt(precip !== null ? precip * 1000 : null) + "mm · 雪 " + fmt(snow !== null ? snow * 1000 : null) + "mm · 对流 " + fmt(conv !== null ? conv * 1000 : null) + "mm · " + (ptype !== null && PTYPE[ptype] !== undefined ? PTYPE[ptype] : "--") + (cape !== null ? " · CAPE " + fmt(cape, 0) : "") + (eTpw !== null ? " · 水汽 " + fmt(eTpw, 1) + "kg/m²" : "") + (eTcw !== null && eTcw > 0.005 ? " · 云水 " + fmt(eTcw, 2) : "") + (omDayPrecip !== null ? " · 今日累计 " + fmt(omDayPrecip, 1) + "mm（融合）" : ""));
 
     // 海洋（一行）
     const sea = results.sea;
