@@ -204,8 +204,19 @@ if (!APIKEY || APIKEY === "YOURKEY") {
   ];
   const results = {};
   let pending = jobs.length;
+  // Windy 10 分钟本地缓存：模式新旧运行时次交替返回时，连刷用同一套数据，不跳数
+  const windyCacheKey = "windy_pf_" + MODEL + "_" + LAT.toFixed(2) + "_" + LON.toFixed(2);
+  let windyCacheHit = 0, jobsLeft = jobs.length;
+  try {
+    const c = JSON.parse($persistentStore.read(windyCacheKey) || "null");
+    if (c && c.t && Date.now() - c.t < 600000 && c.d && c.d.weather && (c.d.weather.ts || []).length) {
+      jobs.forEach(job => { results[job.name] = c.d[job.name] || null; });
+      windyCacheHit = c.t;
+      pending = 0;
+    }
+  } catch (e) {}
 
-  jobs.forEach(job => {
+  if (!windyCacheHit) jobs.forEach(job => {
     const body = JSON.stringify({ lat: LAT, lon: LON, model: job.model, parameters: job.parameters, levels: job.levels || ["surface"], key: APIKEY });
     $httpClient.post(
       { url: "https://api.windy.com/api/point-forecast/v2", timeout: 15, headers: { "Content-Type": "application/json" }, body: body },
@@ -216,6 +227,9 @@ if (!APIKEY || APIKEY === "YOURKEY") {
         } else {
           results[job.name] = null;
           if (job.name === "weather") results.weatherError = "接口返回 " + (status || err || "无数据");
+        }
+        if (--jobsLeft === 0 && results.weather && (results.weather.ts || []).length) {
+          try { $persistentStore.write(JSON.stringify({ t: Date.now(), d: { weather: results.weather, sea: results.sea || null, current: results.current || null, air: results.air || null } }), windyCacheKey); } catch (e) {}
         }
         if (--pending === 0) render();
       }
@@ -326,7 +340,8 @@ if (!APIKEY || APIKEY === "YOURKEY") {
     const idx = curIdx(w);
     const toC = (v) => (v === null ? null : (String(units["temp-surface"] || "K").indexOf("K") === 0 ? v - 273.15 : v));
     const L = [];
-    L.push("📍 " + CITY + " · " + MODEL.toUpperCase() + " · " + dayLabel(w.ts[idx]));
+    const rtMs = w.refTime ? new Date(w.refTime).getTime() : null;
+    L.push("📍 " + CITY + " · " + MODEL.toUpperCase() + " · " + dayLabel(w.ts[idx]) + (rtMs && !isNaN(rtMs) ? " · 起报 " + hhmm(rtMs) : "") + (windyCacheHit ? " · 缓存 " + Math.max(0, Math.round((Date.now() - windyCacheHit) / 60000)) + " 分钟前" : ""));
 
     // Open-Meteo 当前小时取值器（体感/湿球/环境补充共用）
     let omHv = function () { return null; };
