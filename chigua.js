@@ -1,6 +1,6 @@
 /******************************************
  * 黑料不打烊 + 51吃瓜 定时监控推送（带封面图版 v7）
- * 更新: 2026-11-22
+ * 更新: 2026-11-27（图片主机镜像兜底：pic.biacea.cn 连不上时自动换 pic.mmgbaa.cn 同路径下载）
  * 适用: Surge（iOS 5.11.0+ 带图通知）/ Loon / Quantumult X
  * 说明:
  *  1. 解析分类页文章卡片，提取每篇的封面图（v7 起：51吃瓜抓「今日吃瓜」/category/wpcz/，
@@ -239,8 +239,36 @@ async function notifyNew(siteName, news) {
   }
 }
 
+// 两站共用同一套图库，图片主机可互为镜像：
+// 2026-11-27 实测黑料把图换到 pic.biacea.cn 后该主机连接被重置（网站自身封面也加载不出来），
+// 但同一路径在 pic.mmgbaa.cn 上能正常下载、解密。故下载失败时自动换另一个主机重试。
+const IMG_HOST_MIRRORS = ["pic.mmgbaa.cn", "pic.biacea.cn"];
+
+function imgMirrorCandidates(imgUrl) {
+  const list = [imgUrl];
+  const m = imgUrl.match(/^(https?:\/\/)([^/]+)(\/.*)$/i);
+  if (m && IMG_HOST_MIRRORS.includes(m[2].toLowerCase())) {
+    for (const h of IMG_HOST_MIRRORS) {
+      const alt = m[1] + h + m[3];
+      if (!list.includes(alt)) list.push(alt);
+    }
+  }
+  return list;
+}
+
 // 下载图片 → 未加密直接用，加密的先 AES 解密 → 转 base64
 async function fetchImageBase64(imgUrl) {
+  for (const u of imgMirrorCandidates(imgUrl)) {
+    const r = await fetchOneImageBase64(u);
+    if (r) {
+      if (u !== imgUrl) console.log(`[图片] 原主机下载失败，已切换镜像主机: ${u}`);
+      return r;
+    }
+  }
+  return null;
+}
+
+async function fetchOneImageBase64(imgUrl) {
   try {
     let data = await httpGetBinary(imgUrl);
     if (!data || data.length === 0 || data.length > MAX_IMG_BYTES) return null;
